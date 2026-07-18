@@ -40,7 +40,6 @@ function useStorageValue(key: string) {
   );
 
   const update = (next: string) => {
-    setValue(next);
     writeValue(key, next);
   };
 
