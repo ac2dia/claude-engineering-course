@@ -79,3 +79,24 @@ test("links ready Session 2 from the course home", async () => {
   assert.match(html, /href="\/learn\/session-02"/);
   assert.match(html, /근거를 요구하며 코드 탐색하기/);
 });
+
+test("renders Session 3 from MDX content", async () => {
+  const response = await render("/learn/session-03");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /요구사항을 행동 표로 바꾸기/);
+  assert.match(html, /계획 전에 영향 범위 조사하기/);
+  assert.match(html, /Claude의 작업 계획 리뷰하기/);
+  assert.match(html, /개념 확인과 세 번째 원칙/);
+  assert.match(html, /Session 3 목차/);
+  assert.match(html, /Session 3 완료하기/);
+});
+
+test("links ready Session 3 from the course home", async () => {
+  const response = await render();
+  const html = await response.text();
+
+  assert.match(html, /href="\/learn\/session-03"/);
+  assert.match(html, /요구사항을 작업 계획으로 바꾸기/);
+});

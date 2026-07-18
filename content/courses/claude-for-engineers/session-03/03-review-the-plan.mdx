@@ -1,0 +1,128 @@
+---
+id: review-claude-implementation-plan
+title: Claude의 작업 계획 리뷰하기
+type: exercise
+status: draft
+difficulty: beginner
+estimatedMinutes: 25
+prerequisites:
+  - investigate-before-planning
+repositoryVersion: v0.2.0
+startTag: lab-03-start
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/permission-modes
+---
+
+# Claude의 작업 계획 리뷰하기
+
+## Claude 학습 목표
+
+- 계획을 파일 목록이 아닌 검증 가능한 변경 순서로 평가합니다.
+- 근거 없는 결정, 누락된 실패 조건과 과도한 추상화를 찾습니다.
+- Claude의 계획을 승인·수정·거절하는 이유를 기록합니다.
+
+## 1. 계획의 출력 계약을 정합니다
+
+Claude에게 계획을 요청할 때 다음 결과물을 요구하세요.
+
+```text
+지금까지 확인한 코드 근거와 결정된 완료 조건을 사용해 구현 계획을 작성하세요.
+아직 코드는 수정하지 마세요.
+
+각 단계에는 다음을 포함하세요.
+- 변경 목적
+- 대상 파일 또는 새 책임
+- 기존 코드 근거
+- 먼저 추가할 실패 테스트
+- 구현 후 실행할 검증
+
+결정되지 않은 제품 요구사항은 임의로 선택하지 말고 별도 목록으로 남기세요.
+최소 변경안과 선택적 확장을 구분하세요.
+```
+
+<LearningNote id="session-03-plan-request" prompt="자신의 조사 결과에 맞게 계획 요청을 보완해 작성하세요." multiline />
+
+## 2. 그럴듯하지만 위험한 계획을 검토합니다
+
+다음은 교육용 가상 계획입니다. 실제 Claude의 출력이나 권장 구현이 아닙니다.
+
+```text
+1. PaymentController에서 Idempotency-Key header를 받는다.
+2. ConcurrentHashMap에 key와 PaymentResponse를 저장한다.
+3. 같은 key가 있으면 저장된 응답을 반환한다.
+4. 중복 요청 단위 테스트를 추가한다.
+5. 추후 확장을 위해 IdempotencyStrategy 인터페이스와 Redis 구현 골격을 만든다.
+```
+
+이 계획의 문제 후보:
+
+- 재시작하거나 인스턴스가 여러 개면 메모리 상태가 공유되지 않습니다.
+- 동시에 두 요청이 map 조회를 통과하는 경쟁 조건을 설명하지 않습니다.
+- 같은 key에 다른 주문이 들어오는 충돌 조건이 없습니다.
+- 처리 중·실패·타임아웃 상태를 구분하지 않습니다.
+- 현재 요구하지 않은 Redis 구현 골격은 검증되지 않은 확장입니다.
+- 테스트가 정상 재전송 하나뿐이며 PSP 호출 횟수와 DB 제약을 검증하지 않습니다.
+
+<LearningNote id="session-03-risky-plan-review" prompt="가장 위험한 항목 세 개와 계획을 어떻게 수정할지 적어보세요." multiline />
+
+## 3. 계획 리뷰 체크리스트
+
+### 요구사항 추적
+
+- [ ] 각 완료 조건이 계획의 한 단계 또는 테스트에 연결되는가?
+- [ ] 미결 질문을 구현 결정으로 몰래 바꾸지 않았는가?
+- [ ] 정상·재전송·충돌·동시 요청이 모두 포함되는가?
+
+### 코드 근거
+
+- [ ] 대상 파일과 책임이 실제 코드와 일치하는가?
+- [ ] 기존 트랜잭션과 PSP 호출 위치를 고려했는가?
+- [ ] 새로운 추상화가 현재 코드 규모와 요구사항에 필요한가?
+
+### 검증 가능성
+
+- [ ] 실패하는 테스트를 먼저 추가할 수 있는 단계인가?
+- [ ] PSP 호출이 한 번뿐임을 관찰할 수 있는가?
+- [ ] 애플리케이션 검사뿐 아니라 DB unique constraint를 검증하는가?
+- [ ] 전체 diff를 작게 나누어 리뷰할 수 있는가?
+
+## 4. 나의 최종 계획
+
+자신의 계획을 4~7개의 작은 단계로 정리합니다. Session 4에서 이 계획을 그대로 구현 지시로 사용할 수 있어야 합니다.
+
+<LearningNote id="session-03-final-plan" prompt="테스트와 검증을 포함한 최종 작업 계획을 작성하세요." multiline />
+
+## 참고 계획 구조
+
+먼저 자신의 계획을 완성한 뒤 펼쳐보세요.
+
+<details>
+<summary>참고 구조 보기</summary>
+
+1. 결정된 API 계약을 고정하는 controller 통합 테스트를 추가한다.
+2. 같은 key의 재전송·다른 주문 충돌·동시 요청을 실패 테스트로 표현하고 PSP 호출 횟수 관찰점을 만든다.
+3. idempotency key, 요청 식별 정보와 처리 결과를 영속화할 최소 데이터 모델을 추가한다.
+4. DB unique constraint로 경쟁 상황의 최종 정합성을 보장하고 충돌을 도메인 결과로 변환한다.
+5. `PaymentService`의 기존 트랜잭션과 PSP 호출 순서를 고려해 최초 요청과 재전송 흐름을 연결한다.
+6. 집중 테스트 후 전체 테스트를 실행하고 전체 diff에서 불필요한 추상화와 미결 요구사항의 임의 구현이 없는지 검토한다.
+
+이 구조도 유일한 정답은 아닙니다. 특히 처리 중 요청과 PSP 타임아웃 정책은 제품 결정과 이후 장애 세션의 범위에 따라 계획에서 질문으로 남길 수 있습니다.
+
+</details>
+
+## Plan mode에서 멈추기
+
+Claude Code는 계획을 제시한 뒤 승인 방식을 묻습니다. 이번 세션에서는 구현을 시작하지 말고 계획을 저장한 뒤 Plan mode를 종료합니다. 공식 문서에 따르면 계획을 승인하면 선택한 편집 모드로 전환되어 코드 변경이 시작될 수 있습니다.
+
+```bash
+git status --short
+git diff
+```
+
+두 결과가 비어 있는지 확인하세요.
+
+## 출처
+
+- [Permission modes: review and approve a plan](https://code.claude.com/docs/en/permission-modes#review-and-approve-a-plan)
+

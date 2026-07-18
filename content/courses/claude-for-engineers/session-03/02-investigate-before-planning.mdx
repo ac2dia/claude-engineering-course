@@ -1,0 +1,117 @@
+---
+id: investigate-before-planning
+title: 계획 전에 영향 범위 조사하기
+type: exercise
+status: draft
+difficulty: beginner
+estimatedMinutes: 20
+prerequisites:
+  - turn-requirements-into-examples
+repositoryVersion: v0.2.0
+startTag: lab-03-start
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/permission-modes
+  - https://code.claude.com/docs/en/common-workflows
+---
+
+# 계획 전에 영향 범위 조사하기
+
+## Claude 학습 목표
+
+- 티켓과 실제 코드 사이의 차이를 조사합니다.
+- 기존 패턴이 없다는 사실도 코드 근거와 함께 기록합니다.
+- 구현 파일 목록보다 데이터 정합성과 검증 지점을 먼저 찾습니다.
+
+## 실습 시작
+
+```bash
+cd ../globalpay-commerce-lab
+git fetch --tags
+git checkout lab-03-start
+./gradlew test
+claude --permission-mode plan
+```
+
+이번 세션도 코드를 변경하지 않습니다. Plan mode에서는 Claude가 읽기 전용 도구로 저장소를 조사하고 계획을 제안할 수 있습니다. 계획을 승인하면 편집 모드로 전환될 수 있으므로, 이번 세션에서는 계획을 검토한 뒤 승인하지 않고 종료합니다.
+
+## Domain Brief
+
+이번 실습에서 알아야 할 내용:
+
+- idempotency key는 클라이언트가 같은 작업의 재시도임을 표현하는 식별자입니다.
+- 애플리케이션 인스턴스의 메모리만 사용하면 재시작과 다중 인스턴스에서 보장이 사라질 수 있습니다.
+- “먼저 조회한 뒤 없으면 저장”만으로는 동시 요청 경쟁을 막지 못할 수 있습니다.
+- 데이터베이스의 unique constraint는 경쟁 상황에서 최종 정합성을 지키는 후보입니다.
+
+주의해야 할 오해:
+
+- HTTP header 하나를 추가하면 멱등성이 완성된다고 생각하지 않습니다.
+- 재시도 응답과 아직 처리 중인 요청의 응답을 같은 상황으로 취급하지 않습니다.
+- PSP 자체가 멱등성을 보장한다고 현재 코드에서 추측하지 않습니다.
+
+이번 과정에서 다루지 않는 내용:
+
+- PSP별 실제 idempotency 계약
+- 장기 보관 데이터 정리 정책의 구현
+- PSP 타임아웃 후 불확실한 상태 복구 구현
+
+## 1. 조사 요청 작성
+
+다음 조사 축을 포함하되 구체적인 클래스 이름을 미리 정답처럼 알려주지 마세요.
+
+1. API 입력과 응답 계약
+2. 결제 생성과 상태 변경
+3. 저장소와 데이터베이스 제약
+4. 트랜잭션 경계
+5. PSP 호출 횟수를 확인할 테스트 지점
+6. 저장소에 이미 존재하는 유사 패턴
+
+<LearningNote id="session-03-impact-investigation-prompt" prompt="Claude에게 보낼 영향 범위 조사 요청을 작성하세요." multiline />
+
+## 2. 영향 범위 지도 작성
+
+Claude의 조사 결과를 파일 목록으로만 복사하지 말고 책임과 변경 이유를 함께 적습니다.
+
+```text
+현재 책임:
+코드 근거:
+요구사항 때문에 바뀔 가능성이 있는 이유:
+아직 결정되지 않은 점:
+```
+
+<LearningNote id="session-03-impact-map" prompt="API·도메인·저장소·테스트 중 세 영역 이상의 영향 범위를 기록하세요." multiline />
+
+## 3. 부재도 검증합니다
+
+Claude가 “기존 멱등성 처리가 없다”고 답했다면 한 번의 검색 결과만으로 확정하지 않습니다.
+
+- key, request ID, unique constraint와 중복 처리 관련 이름을 검색했는가?
+- 엔티티와 repository뿐 아니라 migration 또는 schema 설정도 확인했는가?
+- PSP port와 구현체의 계약을 확인했는가?
+- 테스트에서 중복 또는 동시 요청을 다루는지 확인했는가?
+
+<LearningNote id="session-03-existing-patterns" prompt="재사용할 기존 패턴과, 찾지 못한 패턴을 각각 근거와 함께 기록하세요." />
+
+## 단계적 힌트
+
+<ProgressiveHints id="session-03-impact-map">
+  <Hint level={1} title="API 힌트">
+    요청 DTO와 controller에서 key를 받을 위치, 재사용 응답과 충돌 응답을 표현할 위치를 찾아보세요.
+  </Hint>
+  <Hint level={2} title="정합성 힌트">
+    Payment 생성 시점, 트랜잭션 경계와 DB에서 같은 key를 유일하게 만들 위치를 함께 조사하세요.
+  </Hint>
+  <Hint level={3} title="검증 힌트">
+    현재 통합 테스트에서 PSP 호출 횟수를 관찰할 수 있는지, 동시 요청 테스트에 어떤 관찰점이 필요한지 확인하세요.
+  </Hint>
+</ProgressiveHints>
+
+## 중단 지점
+
+시간이 부족하면 영향 범위 지도까지 작성하고 중단하세요. 다음 학습 때 같은 대화를 이어가되 `git status --short`로 코드 변경이 없는지 먼저 확인합니다.
+
+## 출처
+
+- [Permission modes: plan mode](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode)
+- [Common workflows: plan before editing](https://code.claude.com/docs/en/common-workflows#plan-before-editing)

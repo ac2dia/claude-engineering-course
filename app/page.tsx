@@ -23,6 +23,8 @@ const sessions = [
     title: "요구사항을 작업 계획으로 바꾸기",
     focus: "계획 · 완료 조건",
     duration: "75분",
+    ready: true,
+    href: "/learn/session-03",
   },
   {
     number: "04",
