@@ -1,0 +1,100 @@
+---
+id: start-idempotency-with-failing-tests
+title: 실패 테스트부터 작업 지시하기
+type: exercise
+status: draft
+difficulty: intermediate
+estimatedMinutes: 20
+prerequisites:
+  - set-execution-and-verification-boundaries
+repositoryVersion: v0.3.0
+startTag: lab-04-start
+referenceTag: lab-04-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+---
+
+# 실패 테스트부터 작업 지시하기
+
+## Claude 학습 목표
+
+- 구현 코드보다 먼저 관찰 가능한 실패 조건을 테스트로 고정합니다.
+- 테스트 실패가 기능 부재 때문인지 테스트 오류 때문인지 구분합니다.
+- 생성된 테스트 자체가 요구사항을 제대로 검증하는지 리뷰합니다.
+
+## 1. 기존 정상 경로를 보존합니다
+
+먼저 현재 통합 테스트에 `Idempotency-Key` header를 추가하고 기존 결제 성공 행동이 유지되는지 확인하도록 요청하세요. 이 변경은 새 기능 테스트가 아니라 기존 기준선을 새 API 계약에 맞추는 작업입니다.
+
+```text
+기존 결제 성공 통합 테스트에 필수 Idempotency-Key header를 추가하세요.
+아직 멱등성 구현은 하지 말고 이 테스트만 실행해 결과를 보고하세요.
+변경 후 멈추세요.
+```
+
+## 2. 행동 하나씩 실패 테스트를 추가합니다
+
+권장 순서는 다음과 같습니다.
+
+1. 같은 key와 같은 주문 재전송
+2. 같은 key와 다른 주문 충돌
+3. header 누락
+4. 같은 key의 동시 요청
+
+첫 요청 예시:
+
+```text
+같은 Idempotency-Key와 같은 orderId로 POST /api/payments를 두 번 호출하는
+통합 테스트 하나만 추가하세요.
+
+첫 응답은 201, 두 번째는 200이어야 하고 paymentId가 같아야 합니다.
+Payment row는 하나이고 PSP charge 호출도 한 번인지 검증하세요.
+제품 코드는 아직 수정하지 마세요.
+
+테스트를 실행해 기대한 이유로 실패하는지 설명한 뒤 멈추세요.
+```
+
+<LearningNote id="session-04-first-test-prompt" prompt="첫 번째 실패 테스트를 요청할 자신의 지시문을 작성하세요." multiline />
+
+## 테스트도 검토 대상입니다
+
+Claude가 만든 테스트에서 다음을 직접 확인하세요.
+
+- 두 요청이 정말 같은 key와 같은 주문을 사용하는가?
+- 최초와 재전송의 HTTP status를 각각 검증하는가?
+- response body만 아니라 저장된 결제 수를 확인하는가?
+- PSP 호출 횟수를 실제 mock 또는 spy에서 관찰하는가?
+- 테스트가 구현 내부 메서드 호출에 지나치게 결합되지 않았는가?
+- 테스트를 주석 처리하거나 약한 assertion으로 통과시키지 않았는가?
+
+<LearningNote id="session-04-test-review" prompt="Claude가 만든 테스트에서 수정한 assertion과 그 이유를 기록하세요." />
+
+## 동시 요청 테스트의 함정
+
+순서대로 두 번 호출하는 테스트는 재전송을 검증하지만 경쟁 조건을 검증하지 않습니다. 동시 요청 테스트는 두 작업이 가능한 한 같은 시점에 시작되도록 제어하고 다음 세 결과를 함께 확인해야 합니다.
+
+- 반환된 payment ID가 같다.
+- DB payment row가 하나다.
+- PSP charge가 한 번 호출된다.
+
+동시성 테스트가 한 번 통과했다는 사실만으로 모든 운영 환경의 경쟁 조건이 증명되는 것은 아닙니다. 이 테스트는 선택한 정합성 전략의 중요한 회귀 방지 장치입니다.
+
+## 단계적 힌트
+
+<ProgressiveHints id="session-04-failing-tests">
+  <Hint level={1} title="응답 힌트">
+    최초 처리와 재전송을 내부 결과에서 구분해야 controller가 201과 200을 선택할 수 있습니다.
+  </Hint>
+  <Hint level={2} title="호출 횟수 힌트">
+    Mock PSP 구현체를 spy로 감싸 `charge` 호출 횟수를 검증할 수 있는지 Spring 테스트 기능을 조사하세요.
+  </Hint>
+  <Hint level={3} title="동시성 힌트">
+    두 작업을 thread pool에 제출하고 latch로 시작 시점을 맞춘 뒤 두 결과와 DB row, PSP 호출 횟수를 검증하세요.
+  </Hint>
+</ProgressiveHints>
+
+## 중단 지점
+
+시간이 부족하면 순차 재전송과 충돌 테스트까지만 작성하세요. 실패 출력과 테스트 diff를 저장하고 다음 학습 때 구현부터 이어갑니다.
+

@@ -183,10 +183,12 @@ export function CourseProgress({
   const sessionOneCompleted = useCompletion("session-01");
   const sessionTwoCompleted = useCompletion("session-02");
   const sessionThreeCompleted = useCompletion("session-03");
+  const sessionFourCompleted = useCompletion("session-04");
   const count =
     Number(sessionOneCompleted) +
     Number(sessionTwoCompleted) +
-    Number(sessionThreeCompleted);
+    Number(sessionThreeCompleted) +
+    Number(sessionFourCompleted);
   const percent = Math.round((count / 8) * 100);
 
   if (inline) {
@@ -199,8 +201,10 @@ export function CourseProgress({
       <div className="progress-track"><i style={{ width: `${percent}%` }} /></div>
       {!compact && (
         <p>
-          {sessionThreeCompleted
-            ? "Session 4를 준비하고 있습니다."
+          {sessionFourCompleted
+            ? "Session 5를 준비하고 있습니다."
+            : sessionThreeCompleted
+              ? "Session 4에서 계획을 작은 변경으로 실행해 보세요."
             : sessionTwoCompleted
               ? "Session 3에서 구현 전 계획을 만들어 보세요."
             : sessionOneCompleted

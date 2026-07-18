@@ -1,0 +1,115 @@
+---
+id: verify-idempotency-diff-and-reflect
+title: 전체 diff 검증과 네 번째 원칙
+type: checkpoint
+status: draft
+estimatedMinutes: 15
+prerequisites:
+  - implement-idempotency-in-small-loops
+repositoryVersion: v0.3.0
+startTag: lab-04-start
+referenceTag: lab-04-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+---
+
+# 전체 diff 검증과 네 번째 원칙
+
+## 테스트 통과 후가 리뷰의 시작입니다
+
+다음 명령을 직접 실행합니다.
+
+```bash
+./gradlew test
+git status --short
+git diff --stat lab-04-start
+git diff lab-04-start
+```
+
+Claude에게도 전체 diff를 읽게 할 수 있지만 최종 판단은 직접 합니다.
+
+```text
+lab-04-start 이후 전체 diff를 읽고 다음만 보고하세요.
+- 완료 조건별 구현과 테스트 근거
+- 계획에 없던 변경
+- 중복 코드와 불필요한 추상화
+- transaction, DB constraint와 동시성 위험
+- 테스트하지 않은 실패 경로
+
+코드는 수정하지 말고 파일 경로와 근거를 제시하세요.
+```
+
+## 독립 리뷰 체크리스트
+
+### 정확성
+
+- [ ] 같은 key의 재전송이 최초 payment ID를 반환한다.
+- [ ] 다른 주문 충돌이 PSP 호출 전에 차단된다.
+- [ ] unique constraint 이름과 대상 column이 명확하다.
+- [ ] 경쟁에서 진 transaction이 rollback된 뒤 결과를 다시 읽는다.
+
+### 범위
+
+- [ ] key 만료와 PSP timeout을 임의로 구현하지 않았다.
+- [ ] 교육용 요구사항에 없는 Redis나 분산 lock을 추가하지 않았다.
+- [ ] 기존 provider와 pricing 모듈을 불필요하게 바꾸지 않았다.
+
+### 테스트
+
+- [ ] response, DB row와 PSP 호출 횟수를 함께 검증한다.
+- [ ] 동시 요청이 실제로 별도 thread에서 실행된다.
+- [ ] 전체 테스트가 통과한다.
+- [ ] 테스트를 약화하거나 건너뛰지 않았다.
+
+<LearningNote id="session-04-diff-review" prompt="전체 diff에서 가장 위험한 변경과 그 검증 근거를 기록하세요." multiline />
+
+## 참고 구현과 비교
+
+자신의 구현과 리뷰를 끝낸 뒤에만 비교하세요.
+
+```bash
+git diff lab-04-reference -- src/main src/test
+git show --stat lab-04-reference
+```
+
+참고 구현은 유일한 정답이 아닙니다. 구조가 다르다면 다음을 비교합니다.
+
+- 같은 실패 조건을 보장하는가?
+- transaction 실패 후 재조회가 가능한가?
+- 데이터베이스가 최종 정합성을 보장하는가?
+- 더 단순한 구조라면 무엇을 포기하거나 개선했는가?
+
+<LearningNote id="session-04-reference-comparison" prompt="참고 구현과 달랐던 선택 하나와 자신의 선택을 유지하거나 바꿀 이유를 적어보세요." />
+
+## 나의 네 번째 원칙
+
+```text
+Claude가 구현을 끝냈다고 말해도 나는 ____________________ 을 확인한다.
+```
+
+<LearningNote id="session-04-personal-principle" prompt="나의 네 번째 Claude 개발 원칙을 적어보세요." />
+
+## Session 4 회고
+
+<LearningNote id="session-04-reflection" prompt="작은 구현 루프가 전체 구현 요청과 비교해 바꾼 점, 가장 도움이 된 검증과 남은 위험을 기록하세요." multiline />
+
+## 완료 체크
+
+- [ ] 실패 테스트와 최소 구현을 단계별로 반복했다.
+- [ ] 각 단계의 명령 결과와 diff를 확인했다.
+- [ ] 동시 요청과 DB 정합성을 검증했다.
+- [ ] 전체 테스트와 전체 diff를 직접 검토했다.
+- [ ] 참고 구현과 차이를 이유와 함께 설명할 수 있다.
+
+<EndSession
+  sessionId="session-04"
+  label="Session 4 완료하기"
+  completedMessage="네 번째 학습을 마쳤습니다."
+  next="session-05"
+/>
+
+## 다음 세션
+
+Session 5에서는 PSP가 실제로 결제를 처리했지만 응답이 유실되는 상황을 다룹니다. Claude의 첫 가설을 바로 수정안으로 받아들이지 않고, 여러 원인을 코드와 실행 증거로 좁히는 디버깅 과정을 연습합니다.
+

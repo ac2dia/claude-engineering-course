@@ -100,3 +100,24 @@ test("links ready Session 3 from the course home", async () => {
   assert.match(html, /href="\/learn\/session-03"/);
   assert.match(html, /요구사항을 작업 계획으로 바꾸기/);
 });
+
+test("renders Session 4 from MDX content", async () => {
+  const response = await render("/learn/session-04");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /구현 경계와 검증 계약 세우기/);
+  assert.match(html, /실패 테스트부터 작업 지시하기/);
+  assert.match(html, /작은 변경 단위로 멱등성 구현하기/);
+  assert.match(html, /전체 diff 검증과 네 번째 원칙/);
+  assert.match(html, /Session 4 목차/);
+  assert.match(html, /Session 4 완료하기/);
+});
+
+test("links ready Session 4 from the course home", async () => {
+  const response = await render();
+  const html = await response.text();
+
+  assert.match(html, /href="\/learn\/session-04"/);
+  assert.match(html, /작게 구현하고 검증하기/);
+});

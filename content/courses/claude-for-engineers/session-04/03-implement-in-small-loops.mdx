@@ -1,0 +1,99 @@
+---
+id: implement-idempotency-in-small-loops
+title: 작은 변경 단위로 멱등성 구현하기
+type: exercise
+status: draft
+difficulty: intermediate
+estimatedMinutes: 30
+prerequisites:
+  - start-idempotency-with-failing-tests
+repositoryVersion: v0.3.0
+startTag: lab-04-start
+referenceTag: lab-04-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+---
+
+# 작은 변경 단위로 멱등성 구현하기
+
+## Claude 학습 목표
+
+- 실패 테스트 하나를 통과시키는 최소 변경만 요청합니다.
+- Claude가 계획보다 넓게 수정하면 즉시 중단하고 범위를 되돌립니다.
+- 명령 실행 결과와 diff를 다음 단계의 입력으로 사용합니다.
+
+## 구현 루프 1. API 계약
+
+첫 단계에서는 header를 받고 최초 요청 결과를 유지하는 데 필요한 변경만 요청합니다.
+
+```text
+현재 실패 테스트 중 필수 Idempotency-Key header와 최초 요청 201 동작만 통과시키세요.
+아직 재전송 저장이나 동시성 처리는 구현하지 마세요.
+집중 테스트를 실행하고 변경 파일과 남은 실패를 보고한 뒤 멈추세요.
+```
+
+검토할 내용:
+
+- header 누락과 빈 값이 400인가?
+- controller가 도메인 결과를 바탕으로 status를 선택하는가?
+- 아직 필요하지 않은 전역 예외 처리나 공통 프레임워크를 추가하지 않았는가?
+
+## 구현 루프 2. 재전송과 충돌
+
+다음 단계에서는 key와 최초 요청 결과를 영속화하고 같은 요청을 재사용합니다.
+
+```text
+같은 key와 같은 주문의 재전송 테스트, 같은 key와 다른 주문의 충돌 테스트를
+통과시키는 최소 영속화와 서비스 흐름을 구현하세요.
+DB unique constraint도 포함하되 동시 요청 예외 처리는 다음 단계로 남기세요.
+두 집중 테스트를 실행하고 diff를 요약한 뒤 멈추세요.
+```
+
+검토할 내용:
+
+- key가 애플리케이션 메모리가 아니라 DB에 저장되는가?
+- 기존 결과를 반환하기 전에 order ID 충돌을 확인하는가?
+- 재전송 경로가 PSP를 다시 호출하지 않는가?
+- entity에 필요한 최소 필드만 추가했는가?
+
+## 구현 루프 3. 동시 요청
+
+마지막으로 unique constraint 충돌을 정상적인 재전송 결과로 해석합니다.
+
+```text
+동시 요청 테스트를 통과시키세요.
+두 요청이 모두 key가 없다고 본 뒤 경쟁할 수 있음을 고려하세요.
+unique constraint 위반을 transaction 밖에서 처리하고 승리한 결제 결과를 다시 읽으세요.
+동시 요청 테스트와 전체 PaymentFlowIntegrationTest를 실행한 뒤 멈추세요.
+```
+
+## 왜 transaction 경계를 다시 봐야 할까요?
+
+unique constraint 위반이 발생한 transaction은 rollback 대상이 될 수 있습니다. 같은 transaction 안에서 곧바로 repository를 다시 조회하는 설계는 실패할 수 있습니다. 참고 구현은 최초 결제 처리 transaction과 중복 충돌을 해석하는 orchestration을 분리합니다.
+
+이 설명을 그대로 정답으로 복사하지 말고 현재 Spring proxy 호출 구조와 테스트 결과로 확인하세요.
+
+<LearningNote id="session-04-transaction-review" prompt="Claude가 제안한 transaction 경계와 unique 충돌 처리 흐름을 자신의 말로 설명하세요." multiline />
+
+## 범위가 커졌을 때 교정하기
+
+Claude가 Redis, 분산 lock, 범용 idempotency framework 또는 대규모 예외 계층을 추가했다면 다음처럼 교정합니다.
+
+```text
+현재 교육용 완료 조건에 필요하지 않은 변경을 분리하세요.
+실패 테스트를 통과시키는 최소 코드만 남기고 나머지는 제안 목록으로 돌리세요.
+삭제할 파일과 유지할 파일을 먼저 설명한 뒤 수정하세요.
+```
+
+<LearningNote id="session-04-course-correction" prompt="구현 중 Claude의 방향을 교정했거나 그대로 유지한 판단과 근거를 기록하세요." />
+
+## 구현 완료 조건
+
+- [ ] 최초 요청 201
+- [ ] 같은 key와 같은 주문 200 및 같은 payment ID
+- [ ] 같은 key와 다른 주문 409
+- [ ] header 누락 400
+- [ ] 동시 요청에서 payment 1건과 PSP 호출 1회
+- [ ] 기존 주문 상태 변경 동작 유지
+

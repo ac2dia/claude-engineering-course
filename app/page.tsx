@@ -31,6 +31,8 @@ const sessions = [
     title: "작게 구현하고 검증하기",
     focus: "멱등성 구현",
     duration: "75분",
+    ready: true,
+    href: "/learn/session-04",
   },
   {
     number: "05",

@@ -1,0 +1,86 @@
+---
+id: set-execution-and-verification-boundaries
+title: 구현 경계와 검증 계약 세우기
+type: lesson
+status: draft
+estimatedMinutes: 10
+prerequisites:
+  - planning-check-and-reflection
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 구현 경계와 검증 계약 세우기
+
+## Claude 학습 목표
+
+- Claude가 스스로 확인할 수 있는 성공 조건을 작업 지시에 넣습니다.
+- 큰 계획을 테스트 가능한 작은 변경으로 나눕니다.
+- 각 단계의 중단 조건과 계획 밖 변경 처리 방법을 정합니다.
+
+## 계획 전체를 한 번에 맡기지 않습니다
+
+다음 요청은 완료 조건이 넓고 검토 시점이 너무 늦습니다.
+
+```text
+Session 3 계획대로 결제 멱등성을 전부 구현하고 테스트해 줘.
+```
+
+Claude Code 공식 문서는 테스트 사례나 기대 출력처럼 직접 확인할 수 있는 기준을 제공하면 Claude가 작업 결과를 검증하기 쉬워진다고 설명합니다. 이번 세션에서는 하나의 작은 루프를 반복합니다.
+
+```text
+행동 하나 선택
+  → 실패 테스트 작성
+  → 실패 이유 확인
+  → 최소 구현
+  → 집중 테스트
+  → diff 검토
+```
+
+## 실습 브랜치 준비
+
+```bash
+cd ../globalpay-commerce-lab
+git fetch --tags
+git switch -c session-04-work lab-04-start
+./gradlew test
+git status --short
+```
+
+브랜치 이름이 이미 존재하면 자신의 날짜나 이니셜을 붙여 새 이름을 사용하세요. 기존 작업을 삭제하거나 덮어쓰지 않습니다.
+
+## 이번 구현에서 고정할 계약
+
+Session 3의 미결 사항 중 이번 교육용 구현에 필요한 내용만 다음과 같이 고정합니다.
+
+| 상황 | 기대 결과 |
+|---|---|
+| header 없음 | HTTP 400, PSP 호출 없음 |
+| 새로운 key와 주문 | HTTP 201, 결제 생성과 PSP 호출 1회 |
+| 같은 key와 같은 주문 | HTTP 200, 최초 payment ID 반환, 추가 PSP 호출 없음 |
+| 같은 key와 다른 주문 | HTTP 409, 추가 결제와 PSP 호출 없음 |
+| 같은 key의 동시 요청 | 두 요청이 같은 payment ID, 결제 1건, PSP 호출 1회 |
+
+처리 중 요청, key 만료와 PSP 타임아웃은 이후 세션 범위로 남깁니다.
+
+## 작업 경계 작성
+
+<LearningNote id="session-04-execution-boundary" prompt="Claude에게 전달할 변경 범위·검증 명령·중단 조건을 작성하세요." multiline />
+
+권장 경계:
+
+- 한 번에 행동 하나만 구현합니다.
+- 실패 테스트가 기대한 이유로 실패하는지 먼저 보고합니다.
+- 계획에 없던 파일이 필요하면 수정 전에 이유를 설명합니다.
+- 집중 테스트 통과 후 멈추고 변경 파일과 diff를 요약합니다.
+- commit, push와 다음 단계 진행은 요청하지 않습니다.
+
+## 출처
+
+- [How Claude Code works: give Claude something to verify against](https://code.claude.com/docs/en/how-claude-code-works#give-claude-something-to-verify-against)
+- [Best Practices: give Claude a way to verify its work](https://code.claude.com/docs/en/best-practices#give-claude-a-way-to-verify-its-work)
+
+검토일: 2026-07-19
+
