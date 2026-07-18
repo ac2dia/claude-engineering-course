@@ -50,5 +50,27 @@ globalpay-commerce-lab      학습자가 사용하는 실습 코드와 Mock PSP
 - 프로젝트와 MVP 학습 아키텍처 설계 완료
 - Session 1의 60분 분량 콘텐츠 초안 작성
 - 공식 Claude Code 문서를 기준으로 에이전트 루프, 컨텍스트, 권한 및 프로젝트 지침 설명 검토
+- 홈과 Session 1 학습 사이트 구현
+- MDX 콘텐츠 직접 렌더링
+- 브라우저 기반 메모, 단계적 힌트와 개인 진도 저장 구현
 
-다음 작업은 사이트 골격과 MDX 컴포넌트를 구현해 Session 1의 실제 학습 흐름을 브라우저에서 검증하는 것입니다.
+다음 콘텐츠 작업은 Session 2와 `globalpay-commerce-lab`의 코드베이스 탐색 실습을 함께 설계하는 것입니다.
+
+## 로컬 실행
+
+Node.js 22.13 이상이 필요합니다.
+
+```bash
+npm install
+npm run dev
+```
+
+기본 개발 주소는 `http://localhost:3000`입니다.
+
+## 검증
+
+```bash
+npm run lint
+npm run build
+node --test tests/rendered-html.test.mjs
+```

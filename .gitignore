@@ -1,9 +1,14 @@
 .DS_Store
 .next/
+.vinext/
+.wrangler/
 node_modules/
 out/
+dist/
 coverage/
 playwright-report/
 test-results/
+outputs/
+work/
 .env
 .env.local
