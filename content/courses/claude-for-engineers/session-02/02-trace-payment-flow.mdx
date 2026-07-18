@@ -1,0 +1,130 @@
+---
+id: trace-payment-flow-with-claude
+title: 결제 요청 흐름 추적하기
+type: exercise
+status: draft
+difficulty: beginner
+estimatedMinutes: 25
+prerequisites:
+  - investigation-mode-and-evidence
+repositoryVersion: v0.1.0
+startTag: lab-02-start
+lastReviewed: 2026-07-18
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+---
+
+# 결제 요청 흐름 추적하기
+
+## Claude 학습 목표
+
+- 넓은 저장소 요약 대신 하나의 실행 흐름을 출발점으로 탐색합니다.
+- Claude에게 결과 형식과 증거 수준을 지정합니다.
+- 첫 답변에서 멈추지 않고 누락된 연결을 후속 질문으로 좁힙니다.
+
+## 실습 준비
+
+처음 실습한다면 과정 저장소와 같은 상위 디렉터리에 실습 저장소를 복제합니다.
+
+```bash
+cd ..
+git clone https://github.com/ac2dia/globalpay-commerce-lab.git
+```
+
+이미 복제했다면 해당 저장소로 이동해 Session 2 시작 태그를 선택합니다.
+
+```bash
+cd ../globalpay-commerce-lab
+git status
+git checkout lab-02-start
+./gradlew test
+```
+
+`git status`가 깨끗하고 테스트가 통과하면 Claude Code를 Plan mode로 시작합니다.
+
+```bash
+claude --permission-mode plan
+```
+
+## Domain Brief
+
+이번 실습에서 알아야 할 내용:
+
+- 주문은 결제 전 `PENDING_PAYMENT`, 승인 후 `PAID`가 됩니다.
+- 결제는 PSP 요청 중 `PROCESSING`, 승인 후 `APPROVED`가 됩니다.
+- PSP는 외부 결제 처리 사업자이며 실습에서는 로컬 Mock으로 대체합니다.
+- `@Transactional`이 붙은 메서드는 조사할 중요한 경계 후보입니다.
+
+주의해야 할 오해:
+
+- 패키지 이름만 보고 실제 호출 순서를 확정하지 않습니다.
+- `save` 호출이 보인다는 이유만으로 그 시점에 DB commit이 끝났다고 단정하지 않습니다.
+- Mock PSP의 동작을 실제 PSP 계약으로 일반화하지 않습니다.
+
+이번 과정에서 다루지 않는 내용:
+
+- 실제 카드 승인 네트워크
+- 국가별 규제와 보안 인증
+- 장애·재시도·Webhook 구현
+
+## 업무 티켓
+
+```text
+POST /api/payments 요청이 들어온 뒤 주문이 PAID가 되고
+Mock PSP 참조 번호가 응답될 때까지의 호출 흐름을 조사하세요.
+
+주요 주문·결제 상태 변경과 트랜잭션 경계도 찾아야 합니다.
+아직 코드는 수정하지 않습니다.
+```
+
+## 1. 나의 첫 조사 요청 작성
+
+다음 항목을 포함해 Claude에게 보낼 요청을 작성하세요.
+
+1. 코드 변경 금지
+2. 탐색 시작점
+3. 찾아야 할 상태와 경계
+4. 주장별 근거 형식
+5. 확인할 수 없는 내용의 표시 방식
+
+<LearningNote id="session-02-investigation-prompt" prompt="Claude에게 보낼 읽기 전용 조사 요청을 작성하세요." multiline />
+
+## 2. Claude에게 실행하고 결과 기록
+
+직접 작성한 요청을 Claude Code에 보냅니다. 답변을 받은 뒤 아래 네 칸으로 다시 정리하세요.
+
+<LearningNote id="session-02-entry-point" prompt="API 진입점과 그 근거는 무엇인가요?" />
+
+<LearningNote id="session-02-call-chain" prompt="주문 조회에서 PSP 호출까지의 호출 흐름을 적어보세요." multiline />
+
+<LearningNote id="session-02-state-changes" prompt="주문과 결제 상태가 어디에서 변경되나요?" />
+
+<LearningNote id="session-02-transaction" prompt="트랜잭션 경계는 어디이며, 코드만으로 확정하지 못한 점은 무엇인가요?" multiline />
+
+## 3. 누락을 좁히는 후속 질문
+
+첫 답변에 아래 문제가 있으면 한 번에 전체 조사를 다시 요청하지 말고 해당 연결만 좁혀 질문합니다.
+
+- 파일 경로는 있지만 코드 위치가 없다.
+- 컨트롤러에서 서비스까지는 설명했지만 PSP 구현체 선택이 빠졌다.
+- 상태 이름은 나열했지만 변경 메서드를 찾지 않았다.
+- `@Transactional` 위치와 실제 commit 시점을 같은 것으로 표현했다.
+- Java에서 Kotlin으로 넘어가는 호출을 생략했다.
+
+## 단계적 힌트
+
+<ProgressiveHints id="session-02-payment-trace">
+  <Hint level={1} title="진입점 힌트">
+    HTTP method와 경로를 문자열로 검색한 뒤, 요청 DTO가 어느 서비스 메서드로 전달되는지 따라가세요.
+  </Hint>
+  <Hint level={2} title="모듈 연결 힌트">
+    `payment`에서 시작해 `order`, `pricing`, `provider` 패키지로 넘어가는 생성자 의존성과 메서드 호출을 기록하세요.
+  </Hint>
+  <Hint level={3} title="상태와 트랜잭션 힌트">
+    `markPaid`, `approve`, `@Transactional`을 검색하고 호출 위치와 선언 위치를 구분하세요.
+  </Hint>
+</ProgressiveHints>
+
+## 중단 지점
+
+오늘 시간이 부족하다면 Claude의 첫 답변과 네 개의 Field Note까지만 저장하고 멈춰도 됩니다. 다음에는 같은 저장소에서 `claude --continue`로 대화를 이어갈 수 있습니다.

@@ -77,9 +77,15 @@ export function LearningNote({
 
 type HintElement = ReactElement<{ visible?: boolean; index?: number }>;
 
-export function ProgressiveHints({ children }: { children: ReactNode }) {
+export function ProgressiveHints({
+  children,
+  id = "session-01-request",
+}: {
+  children: ReactNode;
+  id?: string;
+}) {
   const hintCount = Children.count(children);
-  const [stored, setStored] = useStorageValue("hints:session-01-request");
+  const [stored, setStored] = useStorageValue(`hints:${id}`);
   const visible = Number(stored || 0);
 
   return (
@@ -139,10 +145,12 @@ export function Hint({
 export function EndSession({
   sessionId,
   label,
+  completedMessage = "학습을 마쳤습니다.",
 }: {
   sessionId: string;
   label: string;
   next?: string;
+  completedMessage?: string;
 }) {
   const [completed, setCompleted] = useStorageValue(`completed:${sessionId}`);
 
@@ -150,7 +158,7 @@ export function EndSession({
     <div className={`end-session ${completed ? "is-complete" : ""}`}>
       <div>
         <span>{completed ? "SESSION COMPLETE" : "END OF SESSION"}</span>
-        <strong>{completed ? "첫 번째 학습을 마쳤습니다." : "오늘의 판단을 저장할까요?"}</strong>
+        <strong>{completed ? completedMessage : "오늘의 판단을 저장할까요?"}</strong>
         <p>작성한 메모와 힌트 상태는 이 브라우저에 남아 있습니다.</p>
       </div>
       <button type="button" onClick={() => setCompleted(completed ? "" : "true")}>
@@ -160,8 +168,8 @@ export function EndSession({
   );
 }
 
-function useCompletion() {
-  const [completed] = useStorageValue("completed:session-01");
+function useCompletion(sessionId: string) {
+  const [completed] = useStorageValue(`completed:${sessionId}`);
   return completed === "true";
 }
 
@@ -172,8 +180,9 @@ export function CourseProgress({
   compact?: boolean;
   inline?: boolean;
 }) {
-  const completed = useCompletion();
-  const count = completed ? 1 : 0;
+  const sessionOneCompleted = useCompletion("session-01");
+  const sessionTwoCompleted = useCompletion("session-02");
+  const count = Number(sessionOneCompleted) + Number(sessionTwoCompleted);
   const percent = Math.round((count / 8) * 100);
 
   if (inline) {
@@ -184,17 +193,31 @@ export function CourseProgress({
     <div className={`course-progress ${compact ? "is-compact" : ""}`}>
       <div><span>나의 진도</span><strong>{count} / 8</strong></div>
       <div className="progress-track"><i style={{ width: `${percent}%` }} /></div>
-      {!compact && <p>{completed ? "Session 2를 준비하고 있습니다." : "첫 세션부터 차근차근 시작하세요."}</p>}
+      {!compact && (
+        <p>
+          {sessionTwoCompleted
+            ? "Session 3를 준비하고 있습니다."
+            : sessionOneCompleted
+              ? "Session 2에서 실제 코드를 탐색해 보세요."
+              : "첫 세션부터 차근차근 시작하세요."}
+        </p>
+      )}
     </div>
   );
 }
 
-export function SessionStatus() {
-  const completed = useCompletion();
+export function SessionStatus({
+  sessionId = "session-01",
+  sessionNumber = "01",
+}: {
+  sessionId?: string;
+  sessionNumber?: string;
+}) {
+  const completed = useCompletion(sessionId);
   return (
     <div className={`session-status ${completed ? "is-complete" : ""}`}>
       <span>{completed ? "완료" : "진행 중"}</span>
-      <strong>{completed ? "Session 01 완료" : "메모는 자동 저장됩니다"}</strong>
+      <strong>{completed ? `Session ${sessionNumber} 완료` : "메모는 자동 저장됩니다"}</strong>
       {completed && <Link href="/">과정 홈에서 진도 보기 →</Link>}
     </div>
   );

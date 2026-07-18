@@ -1,0 +1,68 @@
+---
+id: investigation-mode-and-evidence
+title: 조사 모드와 근거의 기준
+type: lesson
+status: draft
+estimatedMinutes: 10
+prerequisites:
+  - understand-claude-code
+lastReviewed: 2026-07-18
+sources:
+  - https://code.claude.com/docs/en/permission-modes
+  - https://code.claude.com/docs/en/how-claude-code-works
+---
+
+# 조사 모드와 근거의 기준
+
+## 학습 목표
+
+- 조사와 구현의 경계를 요청과 도구 설정으로 함께 만듭니다.
+- Claude의 설명에서 코드 근거가 필요한 주장을 구분합니다.
+- 사실, 해석, 가정을 서로 다른 신뢰 수준으로 다룹니다.
+
+## 시작 업무 사례
+
+새 팀에 합류해 다음 티켓을 받았습니다.
+
+```text
+결제 요청이 주문 상태를 언제 PAID로 바꾸는지 확인해 주세요.
+PSP 호출이 실패하면 어떤 데이터가 남는지도 알려주세요.
+```
+
+아직 기능 변경 요청은 없습니다. 이때 가장 먼저 필요한 결과물은 코드가 아니라 **현재 동작에 대한 근거 있는 지도**입니다.
+
+## 읽기 전용 경계를 두 겹으로 만듭니다
+
+Claude Code의 Plan mode는 파일을 읽고 코드베이스를 탐색하며 계획을 제시할 수 있지만 소스 파일은 수정하지 않습니다. CLI에서는 `Shift+Tab`으로 모드를 전환하거나 다음과 같이 시작할 수 있습니다.
+
+```bash
+claude --permission-mode plan
+```
+
+도구 모드만 믿지 말고 요청에도 작업 경계를 씁니다.
+
+```text
+이번 단계에서는 코드를 수정하지 마세요.
+현재 동작을 조사하고, 각 주장에 파일 경로와 코드 위치를 제시하세요.
+```
+
+Plan mode는 행동 범위를 제한하고, 요청문은 조사 결과의 범위와 품질을 정합니다. 둘은 서로 다른 역할을 합니다.
+
+## 무엇을 근거라고 부를까요?
+
+| 분류 | 예시 | 다루는 방법 |
+|---|---|---|
+| 확인된 사실 | 컨트롤러가 `PaymentService.pay`를 호출한다 | 파일과 코드 위치를 직접 대조 |
+| 코드에 기반한 해석 | 이 메서드가 결제 유스케이스의 오케스트레이터다 | 근거와 해석을 함께 기록 |
+| 확인되지 않은 가정 | 운영 환경에서도 항상 같은 PSP가 선택된다 | 가정으로 표시하고 추가 정보 요청 |
+| 코드 밖의 사실 | PSP가 실제로 승인 응답을 보냈다 | 로그·대시보드·외부 계약 필요 |
+
+<LearningNote id="session-02-evidence-standard" prompt="이번 세션에서 코드 근거로 인정할 기준을 한 문장으로 적어보세요." />
+
+## 출처
+
+- [Permission modes: analyze before you edit](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode)
+- [How Claude Code works: explore before implementing](https://code.claude.com/docs/en/how-claude-code-works#explore-before-implementing)
+
+검토일: 2026-07-18
+

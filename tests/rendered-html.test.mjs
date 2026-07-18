@@ -58,3 +58,24 @@ test("includes accessible learning controls", async () => {
   assert.match(html, /오늘은 여기까지/);
   assert.match(html, /브라우저에만 저장/);
 });
+
+test("renders Session 2 from MDX content", async () => {
+  const response = await render("/learn/session-02");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /조사 모드와 근거의 기준/);
+  assert.match(html, /결제 요청 흐름 추적하기/);
+  assert.match(html, /Claude의 주장을 코드로 검증하기/);
+  assert.match(html, /개념 확인과 두 번째 원칙/);
+  assert.match(html, /Session 2 목차/);
+  assert.match(html, /Session 2 완료하기/);
+});
+
+test("links ready Session 2 from the course home", async () => {
+  const response = await render();
+  const html = await response.text();
+
+  assert.match(html, /href="\/learn\/session-02"/);
+  assert.match(html, /근거를 요구하며 코드 탐색하기/);
+});

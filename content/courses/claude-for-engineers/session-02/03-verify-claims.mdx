@@ -1,0 +1,87 @@
+---
+id: verify-codebase-claims
+title: Claude의 주장을 코드로 검증하기
+type: exercise
+status: draft
+difficulty: beginner
+estimatedMinutes: 15
+prerequisites:
+  - trace-payment-flow-with-claude
+repositoryVersion: v0.1.0
+startTag: lab-02-start
+lastReviewed: 2026-07-18
+sources: []
+---
+
+# Claude의 주장을 코드로 검증하기
+
+## 학습 목표
+
+- Claude가 제시한 경로와 코드 위치를 직접 엽니다.
+- 존재 여부, 연결 관계, 해석의 정확성을 따로 검사합니다.
+- 코드만으로 확인할 수 없는 내용을 발견합니다.
+
+## 답변은 세 단계로 검증합니다
+
+### 1. 존재 검증
+
+제시된 파일, 클래스와 메서드가 실제로 존재하는지 확인합니다. 이름이 비슷한 다른 파일을 근거로 사용하지 않았는지도 봅니다.
+
+### 2. 연결 검증
+
+각 메서드가 실제로 다음 메서드를 호출하는지 확인합니다. 의존성이 선언되어 있다는 사실만으로 호출된다고 단정하지 않습니다.
+
+### 3. 의미 검증
+
+코드는 존재하고 호출도 되지만 Claude의 해석이 과장되지 않았는지 확인합니다. 예를 들어 `@Transactional`은 선언된 트랜잭션 경계의 근거지만, PSP 요청 시점에 DB에 무엇이 commit되어 있는지는 별도 해석이 필요합니다.
+
+## 근거 표 만들기
+
+Claude의 답변에서 중요한 주장 네 개를 골라 다음 형식으로 검토하세요.
+
+```text
+주장:
+Claude가 제시한 근거:
+직접 확인한 코드:
+판정: 확인됨 / 일부 확인 / 확인 불가 / 틀림
+메모:
+```
+
+<LearningNote id="session-02-evidence-review" prompt="가장 중요한 주장 하나를 위 형식으로 검증해 기록하세요." multiline />
+
+## 현재 코드에서 확인해야 할 기준점
+
+먼저 직접 조사한 뒤 펼쳐보세요.
+
+<details>
+<summary>기준점 보기</summary>
+
+- HTTP 진입점은 `payment/api/PaymentController.java`의 `pay` 메서드입니다.
+- 유스케이스 흐름은 `payment/PaymentService.java`의 `pay` 메서드에 모여 있습니다.
+- 주문 조회는 `order/OrderReader.java`, 금액 정규화는 `pricing/PricingService.kt`로 이어집니다.
+- PSP 구현 선택과 호출은 `provider/ProviderRouter.kt`와 `MockPspClient.kt`에서 확인할 수 있습니다.
+- 결제 상태 변경은 `PaymentEntity.approve`, 주문 상태 변경은 `OrderEntity.markPaid`에 있습니다.
+- 선언된 트랜잭션 경계는 `PaymentService.pay`의 `@Transactional`입니다.
+
+</details>
+
+## 코드만으로 확정할 수 없는 것
+
+다음은 이 저장소만 읽어서 실제 운영 사실로 확정할 수 없습니다.
+
+- 실제 PSP의 승인 여부와 네트워크 동작
+- 운영 데이터베이스의 isolation level과 장애 당시 commit 결과
+- 배포 환경의 timeout 설정
+- 운영 트래픽에서 사용하는 통화와 PSP 분포
+
+<LearningNote id="session-02-unverified-assumptions" prompt="Claude의 답변 중 코드만으로 확정할 수 없었던 내용을 적어보세요." />
+
+## 변경이 없었는지 확인
+
+```bash
+git status --short
+git diff
+```
+
+두 명령의 결과가 비어 있어야 이번 세션의 읽기 전용 경계가 지켜진 것입니다.
+

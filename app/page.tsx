@@ -8,12 +8,15 @@ const sessions = [
     focus: "모델 · 도구 · 컨텍스트",
     duration: "60분",
     ready: true,
+    href: "/learn/session-01",
   },
   {
     number: "02",
     title: "근거를 요구하며 코드 탐색하기",
     focus: "코드베이스 조사",
     duration: "60분",
+    ready: true,
+    href: "/learn/session-02",
   },
   {
     number: "03",
@@ -161,7 +164,7 @@ export default function Home() {
               </div>
               <span className="session-duration">{session.duration}</span>
               {session.ready ? (
-                <Link href="/learn/session-01" aria-label={`${session.title} 시작`}>
+                <Link href={session.href} aria-label={`${session.title} 시작`}>
                   시작 <span aria-hidden="true">↗</span>
                 </Link>
               ) : (

@@ -1,0 +1,82 @@
+---
+id: evidence-based-exploration-check
+title: 개념 확인과 두 번째 원칙
+type: checkpoint
+status: draft
+estimatedMinutes: 10
+prerequisites:
+  - verify-codebase-claims
+lastReviewed: 2026-07-18
+sources:
+  - https://code.claude.com/docs/en/permission-modes
+---
+
+# 개념 확인과 두 번째 원칙
+
+## 개념 확인
+
+### 1. Plan mode에서 Claude가 설명한 내용은 모두 사실인가요?
+
+<details>
+<summary>정답 확인</summary>
+
+아닙니다. Plan mode는 파일 수정을 막는 작업 모드이지 설명의 정확성을 보장하는 검증 장치가 아닙니다. 파일과 코드 위치를 직접 대조해야 합니다.
+
+</details>
+
+### 2. `@Transactional`이 `PaymentService.pay`에 있으면 PSP 호출 전에 PROCESSING 결제가 commit되었다고 확정할 수 있나요?
+
+<details>
+<summary>정답 확인</summary>
+
+아닙니다. 현재 코드에서는 PSP 호출이 같은 메서드의 트랜잭션 범위 안에 있습니다. 일반적인 성공 경로의 commit은 메서드가 정상 종료될 때 일어나지만, 실제 동작은 트랜잭션 설정과 예외 조건도 함께 확인해야 합니다.
+
+</details>
+
+### 3. 가장 신뢰할 수 있는 조사 결과는 무엇인가요?
+
+1. Claude가 자신 있게 표현한 설명
+2. 일반적인 Spring Boot 관례와 일치하는 설명
+3. 파일과 호출 관계를 직접 대조하고 불확실성을 표시한 설명
+
+<details>
+<summary>정답 확인</summary>
+
+3번입니다. 관례는 탐색 방향을 잡는 데 유용하지만 현재 저장소의 사실을 대신하지 않습니다.
+
+</details>
+
+## 나의 두 번째 원칙
+
+문장을 완성하세요.
+
+```text
+Claude가 코드베이스를 설명할 때 나는 ____________________ 전에는 사실로 확정하지 않는다.
+```
+
+<LearningNote id="session-02-personal-principle" prompt="나의 두 번째 Claude 개발 원칙을 적어보세요." />
+
+## Session 2 회고
+
+<LearningNote id="session-02-reflection" prompt="Claude의 첫 답변에서 정확했던 점, 수정한 점, 다음 조사에서 바꿀 점을 기록하세요." multiline />
+
+## 완료 체크
+
+- [ ] 코드 변경 없이 조사를 마쳤다.
+- [ ] API 진입점에서 Mock PSP까지의 호출 흐름을 설명할 수 있다.
+- [ ] 주문과 결제 상태 변경 위치를 찾았다.
+- [ ] 트랜잭션 선언 위치와 commit 해석을 구분했다.
+- [ ] Claude의 근거를 직접 대조했다.
+- [ ] 확인할 수 없는 운영 가정을 분리했다.
+
+<EndSession
+  sessionId="session-02"
+  label="Session 2 완료하기"
+  completedMessage="두 번째 학습을 마쳤습니다."
+  next="session-03"
+/>
+
+## 다음 세션
+
+Session 3에서는 같은 코드베이스에 결제 요청 멱등성 요구사항을 적용합니다. 바로 구현하지 않고, 모호한 티켓을 검증 가능한 완료 조건과 작업 계획으로 바꾸는 방법부터 연습합니다.
+
