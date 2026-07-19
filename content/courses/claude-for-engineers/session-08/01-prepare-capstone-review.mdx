@@ -1,0 +1,98 @@
+---
+id: prepare-capstone-review
+title: 종합 리뷰 범위와 독립 기준 세우기
+type: exercise
+status: draft
+estimatedMinutes: 15
+repositoryVersion: v0.7.0
+startTag: lab-08-start
+referenceTag: lab-08-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 종합 리뷰 범위와 독립 기준 세우기
+
+## Claude 학습 목표
+
+- 기능별로 보던 변경을 하나의 시스템 diff로 다시 평가합니다.
+- Claude의 기존 설명을 재사용하지 않고 독립적인 리뷰 기준을 먼저 만듭니다.
+- 확인된 결함과 아직 테스트하지 않은 위험을 구분합니다.
+
+## 종합 실습 브랜치 준비
+
+Session 8은 제품 코드를 더 구현하는 세션이 아니지만 리뷰 문서와 프로젝트 지침을 작성하므로 `lab-08-start`에서 개인 브랜치를 만듭니다.
+
+### 저장소가 없는 경우
+
+```bash
+cd ..
+git clone https://github.com/ac2dia/globalpay-commerce-lab.git
+cd globalpay-commerce-lab
+git fetch --tags
+git switch -c session-08-work lab-08-start
+```
+
+### 기존 저장소가 있는 경우
+
+```bash
+cd ../globalpay-commerce-lab
+git status --short
+git fetch --tags
+git switch -c session-08-work lab-08-start
+```
+
+변경이 있으면 삭제하지 말고 먼저 보존합니다. 브랜치가 이미 있으면 `git switch session-08-work`를 사용합니다.
+
+### 시작 상태 확인
+
+```bash
+git branch --show-current
+git merge-base --is-ancestor lab-08-start HEAD
+git status --short
+./gradlew test
+```
+
+업무 티켓을 읽습니다.
+
+```bash
+sed -n '1,240p' docs/tickets/session-08-workflow-review.md
+```
+
+```text
+lab-08-start
+  └─ session-08-work        ← 리뷰와 개인 프로젝트 지침 작성
+
+lab-08-reference            ← 자신의 산출물을 완성한 뒤 비교할 예시
+```
+
+## 리뷰할 전체 변경
+
+```bash
+git diff --stat lab-05-start..lab-07-reference
+git diff --name-only lab-05-start..lab-07-reference
+git log --oneline --decorate lab-05-start..lab-07-reference
+```
+
+이번 범위에는 PSP 응답 유실, 불확실 상태, 중복 Webhook과 상태 전이 정책이 함께 들어 있습니다. 각 세션의 테스트가 통과해도 기능 사이의 상호작용과 운영 조건까지 증명되지는 않습니다.
+
+## 독립 기준을 먼저 작성합니다
+
+Claude에게 diff를 보여 주기 전에 자신의 기준을 적습니다.
+
+- 외부 요청을 위조하거나 변조할 수 있는가?
+- 네트워크 대기 동안 DB 자원을 오래 잡는가?
+- 동시 요청과 서로 다른 이벤트가 불변 조건을 깨뜨릴 수 있는가?
+- 실패를 탐지하고 원인을 추적하고 복구할 수 있는가?
+- 테스트가 Mock 환경 밖의 조건을 과도하게 일반화하지 않는가?
+
+<LearningNote id="session-08-independent-criteria" prompt="전체 변경을 평가할 보안·성능·정합성·운영 기준과 우선순위를 작성하세요." multiline />
+
+## 출처
+
+- [How Claude Code works: context and verification](https://code.claude.com/docs/en/how-claude-code-works)
+- [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices)
+
+검토일: 2026-07-19

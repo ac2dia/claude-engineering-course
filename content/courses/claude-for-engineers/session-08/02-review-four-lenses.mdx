@@ -1,0 +1,83 @@
+---
+id: review-payment-changes-four-lenses
+title: 네 가지 관점으로 전체 diff 다시 리뷰하기
+type: exercise
+status: draft
+estimatedMinutes: 20
+prerequisites:
+  - prepare-capstone-review
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/code-review
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 네 가지 관점으로 전체 diff 다시 리뷰하기
+
+## 읽기 전용 리뷰를 요청합니다
+
+```text
+lab-05-start..lab-07-reference 전체 diff를 독립적으로 리뷰하세요.
+코드는 수정하지 마세요.
+
+보안, 성능, 정합성, 운영 가능성 네 관점으로 나누고 각 항목에 다음을 붙이세요.
+- 중요도
+- 확인된 결함 / 미검증 위험 / 확인된 보장 중 하나
+- 파일과 메서드 근거
+- 관련 테스트 또는 없는 테스트
+- 반증하거나 재현할 최소 검증
+
+기능별 테스트 통과를 운영 안전성의 증거로 일반화하지 마세요.
+```
+
+## 근거 수준을 검토합니다
+
+| 표현 | 필요한 근거 |
+|---|---|
+| 확인된 결함 | 현재 코드에서 위반 경로를 직접 설명하거나 재현함 |
+| 미검증 위험 | 가능한 경로는 있으나 실행 결과가 아직 없음 |
+| 확인된 보장 | constraint, transaction과 테스트가 함께 뒷받침함 |
+| 범위 밖 | 이번 구현이 의도적으로 제공하지 않음 |
+
+Claude가 “안전합니다”, “thread-safe입니다”, “운영 준비가 됐습니다”라고 단정하면 어느 테스트와 운영 전제가 그 주장을 증명하는지 다시 요구하세요.
+
+## 네 관점의 시작 질문
+
+### 보안
+
+- Webhook 발신자를 인증하는가?
+- provider reference와 payment ID를 신뢰해도 되는 근거가 있는가?
+- log나 응답에 민감 정보가 노출되는가?
+
+### 성능
+
+- PSP 네트워크 호출이 DB transaction 안에 있는가?
+- `UNKNOWN` 결제 후속 조회가 대량일 때 호출량을 어떻게 제한하는가?
+- 이벤트 기록 조회와 unique constraint가 필요한 index를 갖는가?
+
+### 정합성
+
+- 같은 event ID뿐 아니라 서로 다른 상충 이벤트의 동시 수신은 안전한가?
+- payment와 order가 함께 commit되는가?
+- transaction rollback 뒤 재수신이 가능한가?
+
+### 운영 가능성
+
+- `UNKNOWN`, `IGNORED`, `DUPLICATE`를 검색하고 알림 받을 수 있는가?
+- 상태를 왜 무시했는지 재구성할 수 있는가?
+- 수동 확인이나 재처리 진입점의 권한과 감사 기록이 있는가?
+
+<LearningNote id="session-08-four-lens-review" prompt="가장 중요한 발견을 근거 수준·파일·테스트·다음 검증과 함께 기록하세요." multiline />
+
+## 가장 위험한 미검증 경로 하나
+
+모든 위험을 즉시 수정하지 않습니다. 영향과 가능성을 기준으로 하나를 선택하고 다음 테스트 또는 조사 계획만 작성합니다.
+
+<LearningNote id="session-08-next-risk" prompt="가장 먼저 검증할 미검증 위험, 선택 이유와 최소 재현 계획을 작성하세요." multiline />
+
+## 출처
+
+- [Claude Code review documentation](https://code.claude.com/docs/en/code-review)
+- [Best Practices: verify the result](https://code.claude.com/docs/en/best-practices)
+
+검토일: 2026-07-19

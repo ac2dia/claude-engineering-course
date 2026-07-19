@@ -63,6 +63,8 @@ const sessions = [
     title: "나만의 Claude 개발 워크플로 만들기",
     focus: "종합 리뷰",
     duration: "60분",
+    ready: true,
+    href: "/learn/session-08",
   },
 ] as const;
 
@@ -186,7 +188,7 @@ export default function Home() {
       </section>
 
       <footer className="footer">
-        <p>Claude Engineering Course · MVP 2026.1</p>
+        <p>Claude Engineering Course · 8 Sessions Complete</p>
         <p>개인 진도와 메모는 이 브라우저에만 저장됩니다.</p>
       </footer>
     </main>

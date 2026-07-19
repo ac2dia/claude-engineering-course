@@ -1,0 +1,88 @@
+---
+id: build-personal-claude-workflow
+title: 개인 워크플로와 프로젝트 지침 완성하기
+type: exercise
+status: draft
+estimatedMinutes: 15
+prerequisites:
+  - review-payment-changes-four-lenses
+repositoryVersion: v0.7.0
+startTag: lab-08-start
+referenceTag: lab-08-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/memory
+  - https://code.claude.com/docs/en/permissions
+  - https://code.claude.com/docs/en/hooks-guide
+---
+
+# 개인 워크플로와 프로젝트 지침 완성하기
+
+## 나의 반복 가능한 작업 루프
+
+지난 일곱 세션을 하나의 흐름으로 압축합니다.
+
+```text
+1. 요청을 관찰 가능한 행동과 미결 질문으로 바꾼다.
+2. 구현 전에 코드 경로와 기존 규칙을 조사한다.
+3. 여러 해결안과 전제를 비교하고 완료 조건을 정한다.
+4. 실패 테스트 → 최소 변경 → 집중 검증을 반복한다.
+5. 장애에서는 경쟁 가설과 반증 증거를 사용한다.
+6. 전체 diff와 실패 조건으로 결과를 독립 검토한다.
+7. 방향이 어긋나면 근거·반례·범위로 즉시 교정한다.
+8. 실행 증거, 남은 위험과 다음 검증을 기록한다.
+```
+
+<LearningNote id="session-08-personal-workflow" prompt="실제 업무에서 반복할 자신의 Claude 개발 절차를 6~10단계로 작성하세요." multiline />
+
+## `CLAUDE.md`에 무엇을 넣을까요?
+
+프로젝트 지침은 팀과 저장소에 반복 적용되는 정보여야 합니다.
+
+넣기 좋은 내용:
+
+- 저장소 목적과 모듈 경계
+- 실제 build·test·lint 명령
+- 결제 불변 조건과 transaction 규칙
+- 구현 전 조사, 중단 조건과 완료 보고 형식
+- 실제로 반복되는 보안·데이터 취급 주의점
+
+넣지 않을 내용:
+
+- Session 8 티켓처럼 한 번만 필요한 요청
+- “좋은 코드를 작성한다” 같은 검증 불가능한 문장
+- 현재 코드와 충돌하는 오래된 경로 또는 명령
+- 반드시 강제돼야 하는 보안 통제를 자연어 지침만으로 대체한 내용
+
+공식 문서는 프로젝트 `CLAUDE.md`가 컨텍스트로 제공되는 지침이며 강제 설정은 아니라고 설명합니다. 간결하고 구체적으로 작성하고, 항상 실행되어야 하는 검증은 CI나 hook, 접근 통제는 permission 설정 같은 강제 수단을 검토해야 합니다.
+
+## 자신의 지침을 작성합니다
+
+```text
+현재 저장소와 내가 작성한 워크플로를 바탕으로 root CLAUDE.md 초안을 만드세요.
+200줄보다 짧게 유지하고 다음만 포함하세요.
+- 목적과 모듈 경계
+- 코드 변경 전 조사·계획 절차
+- payment와 Webhook 불변 조건
+- 집중 테스트와 전체 검증 명령
+- 범위 확대 시 중단 조건
+- 완료 보고에 포함할 증거와 남은 위험
+
+각 규칙이 저장소의 반복 업무에 필요한지 설명하고, 아직 파일을 수정하지 마세요.
+```
+
+초안을 리뷰한 뒤에만 파일을 반영합니다. `/memory`에서 실제로 로드되는 프로젝트 지침을 확인할 수 있습니다.
+
+<ProgressiveHints id="session-08-claude-md-hints">
+  <Hint level={1} title="구체성 힌트">“테스트하라”보다 `./gradlew test`처럼 실행 가능한 명령을 씁니다.</Hint>
+  <Hint level={2} title="범위 힌트">개인 선호는 사용자 지침, 팀이 공유할 저장소 규칙은 프로젝트 `CLAUDE.md`로 분리합니다.</Hint>
+  <Hint level={3} title="강제 힌트">Claude가 기억하길 바라는 지침과 반드시 실행돼야 하는 CI·hook·permission을 구분합니다.</Hint>
+</ProgressiveHints>
+
+## 출처
+
+- [How Claude remembers your project](https://code.claude.com/docs/en/memory)
+- [Configure permissions](https://code.claude.com/docs/en/permissions)
+- [Automate workflows with hooks](https://code.claude.com/docs/en/hooks-guide)
+
+검토일: 2026-07-19

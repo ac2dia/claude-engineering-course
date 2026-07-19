@@ -199,3 +199,29 @@ test("links ready Session 7 from the course home", async () => {
   assert.match(html, /href="\/learn\/session-07"/);
   assert.match(html, /Claude와 의견이 다를 때 판단하기/);
 });
+
+test("renders Session 8 from MDX content", async () => {
+  const response = await render("/learn/session-08");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /종합 리뷰 범위와 독립 기준 세우기/);
+  assert.match(html, /네 가지 관점으로 전체 diff 다시 리뷰하기/);
+  assert.match(html, /개인 워크플로와 프로젝트 지침 완성하기/);
+  assert.match(html, /참고 결과 비교와 최종 원칙/);
+  assert.match(html, /Session 8 목차/);
+  assert.match(html, /전체 과정 완료하기/);
+  assert.match(html, /git switch -c session-08-work lab-08-start/);
+  assert.match(html, /lab-08-reference/);
+  assert.match(html, /docs\/tickets\/session-08-workflow-review\.md/);
+  assert.match(html, /CLAUDE\.md/);
+});
+
+test("links ready Session 8 from the course home", async () => {
+  const response = await render();
+  const html = await response.text();
+
+  assert.match(html, /href="\/learn\/session-08"/);
+  assert.match(html, /나만의 Claude 개발 워크플로 만들기/);
+  assert.doesNotMatch(html, /08[\s\S]*준비 중/);
+});
