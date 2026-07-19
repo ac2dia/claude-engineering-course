@@ -1,0 +1,61 @@
+---
+id: review-generated-webhook-tests
+title: 생성된 실패 테스트 자체를 검증하기
+type: exercise
+status: draft
+estimatedMinutes: 20
+prerequisites:
+  - define-webhook-failure-oracles
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 생성된 실패 테스트 자체를 검증하기
+
+## 첫 번째 요청은 구현이 아닙니다
+
+```text
+PaymentWebhookCharacterizationTest를 읽고 제품 코드는 수정하지 마세요.
+현재 중복 실패를 원하는 행동으로 바꾸는 테스트를 작성하세요.
+
+- 같은 eventId를 두 번 전송한다.
+- 두 번째 응답은 DUPLICATE다.
+- payment와 order 상태는 첫 처리 결과 그대로다.
+- Webhook 이벤트 기록은 한 건이다.
+
+테스트를 실행해 기대한 이유로 실패하는지 설명한 뒤 멈추세요.
+```
+
+## 테스트도 Claude의 주장입니다
+
+생성된 테스트에서 다음을 직접 확인합니다.
+
+- 두 요청의 `eventId`가 정말 같은가?
+- 같은 payload를 두 번 보낸 것뿐 아니라 이벤트 기록 수를 확인하는가?
+- HTTP 200만 확인하고 내부 outcome을 놓치지 않았는가?
+- 두 번째 처리에서 payment 상태 변경 메서드가 재실행되지 않았음을 증명하는가?
+- 테스트가 exception을 삼키거나 느슨한 `is2xx`만 사용하지 않는가?
+
+<LearningNote id="session-06-test-review" prompt="Claude가 만든 테스트에서 부족했던 assertion과 보완 이유를 기록하세요." multiline />
+
+## 숨은 경계 조건을 추가로 요청하기
+
+중복 테스트만 통과하면 “수신하자마자 event ID를 영구 저장”하는 잘못된 구현도 성공할 수 있습니다. 처리 실패 뒤 같은 event ID가 다시 왔을 때 실제 처리가 가능해야 합니다.
+
+```text
+Webhook event를 인식한 뒤 payment 변경 전에 일시적 예외가 발생하는 테스트를 하나 추가하세요.
+첫 시도 뒤 event 기록, payment, order가 모두 rollback되었는지 확인하고
+같은 eventId 재수신이 PROCESSED로 완료되는지 검증하세요.
+제품 코드는 수정하지 말고 실패 출력까지 보고하세요.
+```
+
+<ProgressiveHints id="session-06-test-hints">
+  <Hint level={1} title="중복 식별 힌트">payload 전체나 payment ID가 아니라 PSP가 제공한 고유 event ID를 재처리 식별자로 사용합니다.</Hint>
+  <Hint level={2} title="실패 주입 힌트">이벤트 기록 뒤 payment 변경 전에 한 번만 예외를 던지는 제어점을 두면 transaction rollback을 관찰할 수 있습니다.</Hint>
+  <Hint level={3} title="증거 힌트">실패 직후 event row 0건, payment `UNKNOWN`, order `PENDING_PAYMENT`를 함께 확인하세요.</Hint>
+</ProgressiveHints>
+
+## 테스트가 기대한 이유로 실패했나요?
+
+컴파일 오류, 잘못된 fixture 또는 JSON 오타로 실패하면 요구사항을 재현한 것이 아닙니다. 실패 stack trace가 중복 처리 부재나 transaction 경계라는 목표 원인을 가리킬 때까지 테스트부터 수정합니다.

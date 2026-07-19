@@ -1,0 +1,86 @@
+---
+id: verify-webhook-adversarially
+title: 반대 사례로 검증하고 여섯 번째 원칙 세우기
+type: checkpoint
+status: draft
+estimatedMinutes: 15
+prerequisites:
+  - implement-webhook-inbox
+repositoryVersion: v0.5.0
+startTag: lab-06-start
+referenceTag: lab-06-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 반대 사례로 검증하고 여섯 번째 원칙 세우기
+
+## 전체 검증
+
+```bash
+./gradlew test
+git status --short
+git diff --stat lab-06-start
+git diff lab-06-start
+```
+
+Claude에게 구현을 칭찬하거나 요약하는 대신 반증을 요청합니다.
+
+```text
+lab-06-start 이후 diff를 읽고 Webhook 멱등성이 깨지는 반대 사례를 찾으세요.
+- 같은 event ID의 순차·동시 수신
+- 이벤트 저장 뒤 payment 변경 실패
+- payment 변경 뒤 transaction commit 실패
+- 이미 승인된 payment의 새 event ID
+- 처리 결과 또는 무시 이유가 남지 않는 경로
+
+코드는 수정하지 말고 각 위험에 현재 테스트·constraint·transaction 근거를 붙이세요.
+근거가 없으면 미검증으로 표시하세요.
+```
+
+## 참고 구현 비교
+
+자신의 리뷰가 끝난 뒤 실행합니다.
+
+```bash
+git diff lab-06-reference -- src/main src/test
+git show --stat lab-06-reference
+```
+
+참고 구현은 event ID를 DB 식별자로 사용하고, 수신 기록과 상태 변경을 하나의 transaction에서 처리합니다. 구조가 다르다면 같은 실패 조건을 보장하는 증거가 있는지 비교하세요.
+
+<LearningNote id="session-06-reference-comparison" prompt="참고 구현과 다른 선택, 더 강하거나 약한 보장과 그 근거를 기록하세요." multiline />
+
+## 나의 여섯 번째 원칙
+
+```text
+Claude가 테스트를 추가했다고 해도 나는 ____________________ 을 확인한다.
+```
+
+<LearningNote id="session-06-personal-principle" prompt="나의 여섯 번째 Claude 개발 원칙을 적어보세요." />
+
+## 완료 체크
+
+- [ ] 정상 경로 밖의 중복·실패·재수신 테스트를 요청했다.
+- [ ] 생성된 테스트가 응답, DB 상태와 부수 효과를 함께 검증하는지 확인했다.
+- [ ] transaction 실패 후 같은 이벤트가 다시 처리되는 이유를 설명할 수 있다.
+- [ ] 처리·중복·무시 결과를 구분하고 추적할 수 있다.
+- [ ] 전체 diff를 반대 사례 관점에서 검토했다.
+
+<EndSession
+  sessionId="session-06"
+  label="Session 6 완료하기"
+  completedMessage="여섯 번째 학습을 마쳤습니다."
+  next="session-07"
+/>
+
+## 다음 세션
+
+Session 7에서는 늦게 도착한 이벤트가 결제 상태를 과거로 되돌리려는 상황에서 여러 해결안의 트레이드오프를 비교하고, Claude와 의견이 다를 때 판단을 복구하는 방법을 연습합니다.
+
+## 출처
+
+- [Best Practices: verification and course correction](https://code.claude.com/docs/en/best-practices)
+
+검토일: 2026-07-19

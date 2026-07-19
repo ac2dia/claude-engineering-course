@@ -44,9 +44,11 @@ const sessions = [
   },
   {
     number: "06",
-    title: "실패 조건으로 결과 검증하기",
+    title: "실패 조건을 이용해 결과 검증하기",
     focus: "중복 Webhook",
     duration: "75분",
+    ready: true,
+    href: "/learn/session-06",
   },
   {
     number: "07",

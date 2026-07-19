@@ -151,3 +151,27 @@ test("links ready Session 5 from the course home", async () => {
   assert.match(html, /href="\/learn\/session-05"/);
   assert.match(html, /Claude의 가정을 검증하며 디버깅하기/);
 });
+
+test("renders Session 6 from MDX content", async () => {
+  const response = await render("/learn/session-06");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /중복 Webhook을 실패 조건으로 정의하기/);
+  assert.match(html, /생성된 실패 테스트 자체를 검증하기/);
+  assert.match(html, /이벤트 기록과 상태 변경을 원자적으로 구현하기/);
+  assert.match(html, /반대 사례로 검증하고 여섯 번째 원칙 세우기/);
+  assert.match(html, /Session 6 목차/);
+  assert.match(html, /Session 6 완료하기/);
+  assert.match(html, /git switch -c session-06-work lab-06-start/);
+  assert.match(html, /lab-06-reference/);
+  assert.match(html, /PaymentWebhookCharacterizationTest/);
+});
+
+test("links ready Session 6 from the course home", async () => {
+  const response = await render();
+  const html = await response.text();
+
+  assert.match(html, /href="\/learn\/session-06"/);
+  assert.match(html, /실패 조건을 이용해 결과 검증하기/);
+});
