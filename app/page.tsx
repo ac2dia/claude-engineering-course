@@ -6,7 +6,7 @@ const sessions = [
     number: "01",
     title: "Claude를 올바르게 이해하기",
     focus: "모델 · 도구 · 컨텍스트",
-    duration: "60분",
+    duration: "4시간 20분",
     ready: true,
     href: "/learn/session-01",
   },
@@ -112,7 +112,7 @@ export default function Home() {
           </div>
           <dl className="hero-facts">
             <div><dt>과정</dt><dd>8 Sessions</dd></div>
-            <div><dt>분량</dt><dd>8–10 Hours</dd></div>
+            <div><dt>분량</dt><dd>12–14 Hours</dd></div>
             <div><dt>방식</dt><dd>Local Practice</dd></div>
           </dl>
         </div>
@@ -132,6 +132,32 @@ export default function Home() {
           </div>
           <CourseProgress compact />
         </aside>
+      </section>
+
+      <section className="onboarding" aria-labelledby="onboarding-title">
+        <div>
+          <p className="eyebrow">BEFORE YOU START</p>
+          <h2 id="onboarding-title">두 저장소의 역할부터 구분하세요.</h2>
+          <p>이 사이트는 읽고 기록하는 가이드입니다. Java/Kotlin 명령과 코드 변경은 별도의 실습 저장소에서만 진행합니다.</p>
+        </div>
+        <div className="onboarding-grid">
+          <article>
+            <span>GUIDE</span>
+            <h3>claude-engineering-course</h3>
+            <p>브라우저에서 세션 설명, 힌트, 회고를 확인합니다.</p>
+          </article>
+          <article>
+            <span>LOCAL LAB</span>
+            <h3>globalpay-commerce-lab</h3>
+            <p>JDK 21, Git, Claude Code CLI와 JetBrains로 태그별 실습을 수행합니다.</p>
+            <a href="https://github.com/ac2dia/globalpay-commerce-lab" target="_blank" rel="noreferrer">실습 저장소 열기 ↗</a>
+          </article>
+          <article>
+            <span>FIRST CHECK</span>
+            <h3>실행 전 확인</h3>
+            <p><code>claude --version</code>, <code>java -version</code>, <code>git status --short --branch</code>의 결과를 확인합니다.</p>
+          </article>
+        </div>
       </section>
 
       <section className="principles" id="principles">

@@ -6,6 +6,7 @@ import PreserveUncertainty from "../../../content/courses/claude-for-engineers/s
 import ReviewEvidence from "../../../content/courses/claude-for-engineers/session-05/04-review-debugging-evidence.mdx";
 import { mdxComponents } from "../../components/mdx-components";
 import { CourseProgress, SessionStatus } from "../../components/learning-tools";
+import { SessionStartGuide } from "../../components/session-start-guide";
 
 export const metadata: Metadata = {
   title: "Session 5 · Claude의 가정을 검증하며 디버깅하기",
@@ -51,6 +52,7 @@ export default function SessionFivePage() {
       </aside>
 
       <div className="lesson-main">
+        <SessionStartGuide session="05" estimated="90분" labTag="lab-05-start" />
         <div className="lesson-intro">
           <p className="eyebrow">DEBUG THE ASSUMPTION</p>
           <h2>그럴듯한 원인보다,<br />반증 가능한 증거를 찾습니다.</h2>

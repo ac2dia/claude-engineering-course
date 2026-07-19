@@ -6,6 +6,7 @@ import SteerImplementation from "../../../content/courses/claude-for-engineers/s
 import ReviewDecision from "../../../content/courses/claude-for-engineers/session-07/04-review-the-decision.mdx";
 import { mdxComponents } from "../../components/mdx-components";
 import { CourseProgress, SessionStatus } from "../../components/learning-tools";
+import { SessionStartGuide } from "../../components/session-start-guide";
 
 export const metadata: Metadata = {
   title: "Session 7 · Claude와 의견이 다를 때 판단하기",
@@ -51,6 +52,7 @@ export default function SessionSevenPage() {
       </aside>
 
       <div className="lesson-main">
+        <SessionStartGuide session="07" estimated="75분" labTag="lab-07-start" />
         <div className="lesson-intro">
           <p className="eyebrow">DISAGREE WITH EVIDENCE</p>
           <h2>취향으로 반대하지 않고,<br />반례와 기준으로 교정합니다.</h2>

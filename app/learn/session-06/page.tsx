@@ -6,6 +6,7 @@ import WebhookInbox from "../../../content/courses/claude-for-engineers/session-
 import AdversarialReview from "../../../content/courses/claude-for-engineers/session-06/04-verify-adversarially.mdx";
 import { mdxComponents } from "../../components/mdx-components";
 import { CourseProgress, SessionStatus } from "../../components/learning-tools";
+import { SessionStartGuide } from "../../components/session-start-guide";
 
 export const metadata: Metadata = {
   title: "Session 6 · 실패 조건을 이용해 결과 검증하기",
@@ -51,6 +52,7 @@ export default function SessionSixPage() {
       </aside>
 
       <div className="lesson-main">
+        <SessionStartGuide session="06" estimated="75분" labTag="lab-06-start" />
         <div className="lesson-intro">
           <p className="eyebrow">TEST THE FAILURE, NOT THE CLAIM</p>
           <h2>테스트가 있다는 사실보다,<br />무엇을 깨뜨리는지 봅니다.</h2>

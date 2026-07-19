@@ -6,6 +6,7 @@ import SmallLoops from "../../../content/courses/claude-for-engineers/session-04
 import VerifyAndReflect from "../../../content/courses/claude-for-engineers/session-04/04-verify-diff-and-reflect.mdx";
 import { mdxComponents } from "../../components/mdx-components";
 import { CourseProgress, SessionStatus } from "../../components/learning-tools";
+import { SessionStartGuide } from "../../components/session-start-guide";
 
 export const metadata: Metadata = {
   title: "Session 4 · 작게 구현하고 검증하기",
@@ -51,6 +52,7 @@ export default function SessionFourPage() {
       </aside>
 
       <div className="lesson-main">
+        <SessionStartGuide session="04" estimated="75분" labTag="lab-04-start" />
         <div className="lesson-intro">
           <p className="eyebrow">SMALL LOOPS, REAL EVIDENCE</p>
           <h2>한 번에 작게 바꾸고,<br />매번 증거를 확인합니다.</h2>
@@ -85,4 +87,3 @@ export default function SessionFourPage() {
     </main>
   );
 }
-

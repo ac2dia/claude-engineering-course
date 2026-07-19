@@ -6,6 +6,7 @@ import PersonalWorkflow from "../../../content/courses/claude-for-engineers/sess
 import CompleteCourse from "../../../content/courses/claude-for-engineers/session-08/04-complete-the-course.mdx";
 import { mdxComponents } from "../../components/mdx-components";
 import { CourseProgress, SessionStatus } from "../../components/learning-tools";
+import { SessionStartGuide } from "../../components/session-start-guide";
 
 export const metadata: Metadata = {
   title: "Session 8 · 나만의 Claude 개발 워크플로 만들기",
@@ -51,6 +52,7 @@ export default function SessionEightPage() {
       </aside>
 
       <div className="lesson-main">
+        <SessionStartGuide session="08" estimated="60분" labTag="lab-08-start" />
         <div className="lesson-intro">
           <p className="eyebrow">MAKE THE LOOP YOURS</p>
           <h2>한 번의 좋은 prompt보다,<br />반복 가능한 판단 절차를 남깁니다.</h2>

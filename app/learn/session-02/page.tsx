@@ -6,6 +6,7 @@ import VerifyClaims from "../../../content/courses/claude-for-engineers/session-
 import CheckAndReflect from "../../../content/courses/claude-for-engineers/session-02/04-check-and-reflect.mdx";
 import { mdxComponents } from "../../components/mdx-components";
 import { CourseProgress, SessionStatus } from "../../components/learning-tools";
+import { SessionStartGuide } from "../../components/session-start-guide";
 
 export const metadata: Metadata = {
   title: "Session 2 · 근거를 요구하며 코드 탐색하기",
@@ -51,6 +52,7 @@ export default function SessionTwoPage() {
       </aside>
 
       <div className="lesson-main">
+        <SessionStartGuide session="02" estimated="60분" labTag="lab-02-start" />
         <div className="lesson-intro">
           <p className="eyebrow">EXPLORE WITH EVIDENCE</p>
           <h2>설명을 듣는 데서 멈추지 않고,<br />근거까지 따라갑니다.</h2>
@@ -85,4 +87,3 @@ export default function SessionTwoPage() {
     </main>
   );
 }
-

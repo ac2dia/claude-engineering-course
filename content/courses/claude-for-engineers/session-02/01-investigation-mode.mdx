@@ -6,7 +6,7 @@ status: draft
 estimatedMinutes: 10
 prerequisites:
   - understand-claude-code
-lastReviewed: 2026-07-18
+lastReviewed: 2026-07-19
 sources:
   - https://code.claude.com/docs/en/permission-modes
   - https://code.claude.com/docs/en/how-claude-code-works
@@ -30,6 +30,40 @@ PSP 호출이 실패하면 어떤 데이터가 남는지도 알려주세요.
 ```
 
 아직 기능 변경 요청은 없습니다. 이때 가장 먼저 필요한 결과물은 코드가 아니라 **현재 동작에 대한 근거 있는 지도**입니다.
+
+## 실습 저장소를 정확한 시작점으로 준비합니다
+
+과정 사이트와 실습 코드는 다른 저장소입니다. 터미널 명령은 `globalpay-commerce-lab`에서 실행하세요.
+
+### 처음 받는 경우
+
+```bash
+git clone https://github.com/ac2dia/globalpay-commerce-lab.git
+cd globalpay-commerce-lab
+git fetch --tags
+git switch --detach lab-02-start
+```
+
+### 이미 저장소가 있는 경우
+
+```bash
+cd globalpay-commerce-lab
+git status --short
+git fetch --tags
+git switch --detach lab-02-start
+```
+
+`git status --short`에 출력이 있으면 전환하지 말고 먼저 자신의 변경을 보존할 방법을 결정합니다. 이번 세션은 읽기 전용이므로 detached HEAD가 정상입니다.
+
+### 시작 상태 확인
+
+```bash
+git describe --tags --exact-match
+java -version
+./gradlew test
+```
+
+첫 명령은 `lab-02-start`, Java는 21, 테스트는 성공이어야 합니다. Windows에서는 `./gradlew` 대신 `gradlew.bat`을 사용합니다. `main`에는 이후 참고 변경도 포함될 수 있으므로 시작 태그를 생략하지 않습니다.
 
 ## 읽기 전용 경계를 두 겹으로 만듭니다
 
@@ -65,4 +99,3 @@ Plan mode는 행동 범위를 제한하고, 요청문은 조사 결과의 범위
 - [How Claude Code works: explore before implementing](https://code.claude.com/docs/en/how-claude-code-works#explore-before-implementing)
 
 검토일: 2026-07-18
-

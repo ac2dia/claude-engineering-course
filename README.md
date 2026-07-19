@@ -22,7 +22,7 @@
 
 - 대상: Claude를 개발 업무에 처음 활용하려는 Java/Kotlin + Spring Boot 엔지니어
 - 방식: 학습 사이트 안내 + 로컬 Claude Code 실습
-- 분량: 8회, 총 8~10시간
+- 분량: 8회, 총 12~14시간 (Session 1은 3일 이상 분할 가능)
 - 학습 속도: 하루 1~2시간의 개인 자율 학습
 - 계정: 없음
 - 진도: 브라우저 로컬 저장
@@ -48,13 +48,14 @@ globalpay-commerce-lab      학습자가 사용하는 실습 코드와 Mock PSP
 ## 현재 상태
 
 - 프로젝트와 MVP 학습 아키텍처 설계 완료
-- Session 1의 60분 분량 콘텐츠 초안 작성
-- 공식 Claude Code 문서를 기준으로 에이전트 루프, 컨텍스트, 권한 및 프로젝트 지침 설명 검토
-- 홈과 Session 1 학습 사이트 구현
+- 8개 세션의 학습 콘텐츠와 태그 기반 로컬 실습 완성
+- Session 1을 4시간 20분으로 확장하고 CLI, JetBrains, 권한 모드, 메모리, `CLAUDE.md`, private gateway 추가
+- 공식 Claude Code 문서를 기준으로 에이전트 루프, 컨텍스트, 권한 및 프로젝트 지침 검토
+- 홈과 전체 Session 학습 사이트 구현
 - MDX 콘텐츠 직접 렌더링
 - 브라우저 기반 메모, 단계적 힌트와 개인 진도 저장 구현
 
-다음 콘텐츠 작업은 Session 2와 `globalpay-commerce-lab`의 코드베이스 탐색 실습을 함께 설계하는 것입니다.
+각 실습 세션의 첫 페이지에서 `globalpay-commerce-lab`의 시작 태그와 작업 브랜치를 안내합니다.
 
 ## 로컬 실행
 

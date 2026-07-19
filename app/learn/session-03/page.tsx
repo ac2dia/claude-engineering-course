@@ -6,6 +6,7 @@ import ReviewThePlan from "../../../content/courses/claude-for-engineers/session
 import CheckAndReflect from "../../../content/courses/claude-for-engineers/session-03/04-check-and-reflect.mdx";
 import { mdxComponents } from "../../components/mdx-components";
 import { CourseProgress, SessionStatus } from "../../components/learning-tools";
+import { SessionStartGuide } from "../../components/session-start-guide";
 
 export const metadata: Metadata = {
   title: "Session 3 · 요구사항을 작업 계획으로 바꾸기",
@@ -51,6 +52,7 @@ export default function SessionThreePage() {
       </aside>
 
       <div className="lesson-main">
+        <SessionStartGuide session="03" estimated="75분" labTag="lab-03-start" />
         <div className="lesson-intro">
           <p className="eyebrow">PLAN BEFORE CODE</p>
           <h2>모호한 티켓을,<br />검증 가능한 계획으로 바꿉니다.</h2>
@@ -85,4 +87,3 @@ export default function SessionThreePage() {
     </main>
   );
 }
-

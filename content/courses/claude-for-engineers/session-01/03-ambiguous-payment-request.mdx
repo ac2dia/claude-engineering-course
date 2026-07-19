@@ -4,10 +4,10 @@ title: 모호한 결제 장애 요청 개선하기
 type: exercise
 status: draft
 difficulty: beginner
-estimatedMinutes: 20
+estimatedMinutes: 35
 prerequisites:
-  - agentic-loop-and-developer
-lastReviewed: 2026-07-18
+  - memory-and-claude-md
+lastReviewed: 2026-07-19
 sources:
   - https://code.claude.com/docs/en/how-claude-code-works
 ---
@@ -93,6 +93,17 @@ RetryTemplate을 추가하고 테스트도 작성하겠습니다.
 3. 사실과 가정의 분리
 4. 다음 의사결정에 필요한 결과물
 
+실무에서는 다음 여섯 칸을 점검하면 빠진 내용을 찾기 쉽습니다.
+
+| 항목 | 이 티켓의 예 |
+|---|---|
+| Goal | 유럽 결제 실패 증가의 원인과 안전한 대응 방향 결정 |
+| Context | 티켓, 시간 범위, 주문·결제 저장소, PSP 계약 |
+| Constraints | 아직 수정 금지, 운영 사실 추측 금지 |
+| Evidence | 파일 경로, 테스트 결과, 로그·trace ID |
+| Verification | 재현 조건과 성공·실패 판정 기준 |
+| Stop | 외부 시스템 접근이나 요구사항 충돌 시 질문하고 중단 |
+
 <LearningNote id="session-01-investigation-prompt" prompt="Claude에게 보낼 조사 중심 요청을 작성하세요." />
 
 ## 단계적 힌트
@@ -149,6 +160,10 @@ RetryTemplate을 추가하고 테스트도 작성하겠습니다.
 ## Session 2와의 연결
 
 Session 2에서는 이 요청을 실제 `globalpay-commerce-lab` 저장소에서 실행하고, Claude가 제시한 파일과 코드 근거가 정확한지 직접 확인합니다.
+
+## 오늘 여기서 나눠도 됩니다
+
+Session 1을 여러 날로 나눈다면 오늘은 여기서 멈추세요. 다음 시작 때 `/resume`으로 대화를 이어 갈 수 있지만, 중요한 판단은 브라우저 메모나 프로젝트 문서에도 남깁니다.
 
 ## 출처
 

@@ -1,0 +1,120 @@
+---
+id: cli-and-permission-modes
+title: CLI 명령어와 권한 모드 익히기
+type: lesson
+status: draft
+estimatedMinutes: 45
+prerequisites:
+  - agentic-loop-and-developer
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/cli-reference
+  - https://code.claude.com/docs/en/interactive-mode
+  - https://code.claude.com/docs/en/permission-modes
+---
+
+# CLI 명령어와 권한 모드 익히기
+
+## 학습 목표
+
+- CLI를 프로젝트 루트에서 안전하게 시작합니다.
+- 셸 명령과 대화 중 slash command를 구분합니다.
+- Manual, Accept edits, Plan mode의 차이를 설명합니다.
+- 초보자에게 적합한 권한 모드를 선택합니다.
+
+## 1. 터미널에서 시작하기
+
+설치 방법은 운영체제와 회사 배포 정책에 따라 달라질 수 있으므로 [공식 설치 안내](https://code.claude.com/docs/en/overview#install-claude-code)를 기준으로 합니다. 설치 후 터미널에서 확인하세요.
+
+```bash
+claude --version
+pwd
+git status --short --branch
+claude
+```
+
+`claude`를 실행한 디렉터리가 기본 작업 범위의 출발점입니다. 여러 프로젝트의 상위 폴더가 아니라 작업할 저장소 루트에서 실행하세요.
+
+## 2. 셸에서 사용하는 핵심 명령
+
+| 명령 | 용도 |
+|---|---|
+| `claude` | 대화형 세션 시작 |
+| `claude "질문"` | 첫 요청과 함께 대화형 세션 시작 |
+| `claude -p "질문"` | 비대화형으로 결과 출력. 자동화 전 위험을 검토해야 함 |
+| `claude -c` | 가장 최근 대화 계속하기 |
+| `claude -r` | 이전 대화 선택해 재개하기 |
+| `claude --permission-mode plan` | 읽기·조사 중심의 Plan mode로 시작 |
+| `claude --ide` | 연결 가능한 IDE를 감지해 시작 |
+| `claude update` | 설치 방식이 지원할 때 업데이트 확인 |
+
+`-p`는 편리하지만 승인 대화를 생략하는 자동화와 결합될 수 있습니다. 처음에는 대화형 세션에서 명령·권한·결과를 관찰한 뒤 사용하세요.
+
+## 3. 대화 안에서 사용하는 slash command
+
+Claude Code를 실행한 뒤 입력창에서 사용합니다. 셸 명령이 아닙니다.
+
+| 명령 | 언제 사용하는가 |
+|---|---|
+| `/help` | 현재 버전에서 사용 가능한 명령 확인 |
+| `/status` | 계정·모델·연결 상태 확인 |
+| `/config` | 표시와 동작 설정 확인 |
+| `/permissions` | 허용·질문·거부 규칙 확인 |
+| `/memory` | 로드된 프로젝트 지침과 메모리 확인 |
+| `/ide` | 현재 IDE와 연결하거나 상태 확인 |
+| `/compact` | 긴 대화를 요약해 컨텍스트 여유 확보 |
+| `/clear` | 현재 대화 컨텍스트를 새로 시작 |
+| `/resume` | 이전 세션을 선택해 재개 |
+
+제품은 계속 바뀝니다. 외우기보다 `/help`를 현재 설치의 기준으로 사용하세요.
+
+## 4. 자주 쓰는 키보드 조작
+
+| 키 | 의미 |
+|---|---|
+| `Enter` | 메시지 전송 |
+| `Shift+Enter` | 여러 줄 입력. 터미널 설정에 따라 다르면 `/config` 확인 |
+| `Esc` | 현재 생성·도구 작업 중단 |
+| `Ctrl+C` | 입력 취소 또는 종료 흐름 |
+| `Ctrl+L` | 터미널 화면 정리. 대화 컨텍스트는 지우지 않음 |
+| `Shift+Tab` | CLI·JetBrains 터미널에서 권한 모드 순환 |
+
+중단은 실패가 아닙니다. 엉뚱한 파일을 탐색하거나 범위가 커지면 `Esc`로 멈추고 경계를 다시 지정하세요.
+
+## 5. 권한 모드 이해하기
+
+| 모드 | 행동 | 초보자 권장 상황 |
+|---|---|---|
+| Manual(Default) | 편집·명령을 개별 승인 규칙에 따라 확인 | 기본 선택 |
+| Accept edits | 파일 편집은 자동 승인하고 다른 행동은 규칙 적용 | 작은 로컬 변경에 익숙해진 뒤 |
+| Plan | 읽기·탐색·계획에 집중하고 소스 편집을 막음 | 코드 조사와 계획 리뷰 |
+| Auto | 격리된 환경에서 더 자율적으로 작업 | 환경과 정책을 이해한 뒤 |
+| Don’t ask | 승인할 수 없는 행동은 질문 없이 거부 | 비대화형 제한 환경 |
+| Bypass permissions | 권한 확인 우회 | 이 과정에서는 사용하지 않음 |
+
+권한 모드는 결과의 정확성 등급이 아닙니다. Plan mode도 틀린 분석을 할 수 있고, Manual mode에서 승인한 코드도 버그가 있을 수 있습니다.
+
+## 6. 10분 미니 실습
+
+빈 작업 디렉터리나 개인 연습 저장소에서 다음을 해 보세요.
+
+1. `claude --permission-mode plan`으로 시작합니다.
+2. `현재 디렉터리의 파일을 수정하지 말고 구조만 설명해 주세요.`라고 요청합니다.
+3. `/permissions`, `/status`, `/memory`를 차례로 확인합니다.
+4. `Shift+Tab`으로 모드 표시가 어떻게 바뀌는지 보고 다시 Plan으로 돌아옵니다.
+5. 존재하지 않는 요구사항을 물은 뒤 Claude가 “모른다”고 구분하는지 확인합니다.
+
+<LearningNote id="session-01-cli-observation" prompt="명령, 권한 모드, Claude의 행동에서 관찰한 차이를 적어보세요." multiline />
+
+## 막히면
+
+- `claude: command not found`: 공식 설치 절차와 터미널 재시작, PATH를 확인합니다.
+- 로그인이 막힘: 회사의 인증·게이트웨이 정책을 먼저 확인합니다.
+- 키가 다르게 동작함: `/help`, `/config`와 터미널 키맵을 확인합니다.
+- 의도치 않은 편집: 즉시 중단하고 `git diff`로 변경을 확인합니다. 변경을 무조건 삭제하지 말고 자신이 만든 작업인지 먼저 구분합니다.
+
+## 출처
+
+- [Claude Code CLI reference](https://code.claude.com/docs/en/cli-reference)
+- [Interactive mode](https://code.claude.com/docs/en/interactive-mode)
+- [Permission modes](https://code.claude.com/docs/en/permission-modes)
