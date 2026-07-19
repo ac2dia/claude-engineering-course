@@ -175,3 +175,27 @@ test("links ready Session 6 from the course home", async () => {
   assert.match(html, /href="\/learn\/session-06"/);
   assert.match(html, /실패 조건을 이용해 결과 검증하기/);
 });
+
+test("renders Session 7 from MDX content", async () => {
+  const response = await render("/learn/session-07");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /늦은 이벤트의 상태 역행 재현하기/);
+  assert.match(html, /해결안과 트레이드오프 비교하기/);
+  assert.match(html, /방향을 교정하며 최소 정책 구현하기/);
+  assert.match(html, /결정과 diff를 검토하고 일곱 번째 원칙 세우기/);
+  assert.match(html, /Session 7 목차/);
+  assert.match(html, /Session 7 완료하기/);
+  assert.match(html, /git switch -c session-07-work lab-07-start/);
+  assert.match(html, /lab-07-reference/);
+  assert.match(html, /lateDeclineCurrentlyRewindsAnApprovedPayment/);
+});
+
+test("links ready Session 7 from the course home", async () => {
+  const response = await render();
+  const html = await response.text();
+
+  assert.match(html, /href="\/learn\/session-07"/);
+  assert.match(html, /Claude와 의견이 다를 때 판단하기/);
+});

@@ -55,6 +55,8 @@ const sessions = [
     title: "Claude와 의견이 다를 때 판단하기",
     focus: "이벤트 상태 전이",
     duration: "75분",
+    ready: true,
+    href: "/learn/session-07",
   },
   {
     number: "08",

@@ -1,0 +1,74 @@
+---
+id: steer-payment-transition-implementation
+title: 방향을 교정하며 최소 정책 구현하기
+type: exercise
+status: draft
+estimatedMinutes: 25
+prerequisites:
+  - compare-state-transition-solutions
+repositoryVersion: v0.6.0
+startTag: lab-07-start
+referenceTag: lab-07-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 방향을 교정하며 최소 정책 구현하기
+
+## 루프 1. 반례를 원하는 테스트로 바꿉니다
+
+```text
+lateDeclineCurrentlyRewindsAnApprovedPayment를 원하는 회귀 테스트로 바꾸세요.
+승인 뒤 늦은 거절 이벤트는 IGNORED와 명시적 이유를 반환하고,
+payment APPROVED와 order PAID가 유지되며 이벤트 기록은 남아야 합니다.
+제품 코드는 수정하지 말고 기대한 이유로 실패하는지 보고하세요.
+```
+
+## 루프 2. 전이 표를 실행 가능한 정책으로 만듭니다
+
+```text
+합의한 전이 표만 표현하는 최소 정책을 구현하세요.
+PROCESSING/UNKNOWN에서 APPROVED/DECLINED를 허용하고,
+APPROVED/DECLINED에서는 늦은 provider 결과를 무시하며 이유를 기록하세요.
+범용 state machine이나 timestamp 정렬은 추가하지 마세요.
+정책 단위 테스트와 Webhook 집중 테스트를 실행한 뒤 멈추세요.
+```
+
+정책 테스트는 허용 사례만이 아니라 4개 현재 상태와 2개 이벤트의 거부 사례를 읽을 수 있게 해야 합니다.
+
+## 루프 3. 예상하지 못한 확장을 멈춥니다
+
+Claude가 refund, reversal, capture, event version, 전체 주문 상태 재설계를 시작하면 즉시 방향을 교정합니다.
+
+```text
+지금 변경은 합의한 두 이벤트와 기존 네 payment 상태를 넘어섰습니다.
+현재 diff를 범위별로 분류하고 완료 조건에 필요하지 않은 변경을 제안 목록으로 되돌리세요.
+제거할 변경을 먼저 설명하고, 승인받기 전에는 파일을 수정하지 마세요.
+```
+
+Claude Code는 작업 중에도 중단하고 구체적인 피드백으로 방향을 바꿀 수 있습니다. 중요한 것은 처음 prompt를 완벽하게 쓰는 것이 아니라 실행 증거와 diff를 이용해 컨텍스트를 다시 선명하게 만드는 것입니다.
+
+<ProgressiveHints id="session-07-implementation-hints">
+  <Hint level={1} title="정책 경계 힌트">controller나 entity 곳곳에 조건을 흩뜨리지 말고 현재 상태와 이벤트를 입력으로 받는 한 정책 지점을 찾으세요.</Hint>
+  <Hint level={2} title="도메인 방어 힌트">Webhook 정책뿐 아니라 entity의 `decline`도 이미 종결된 상태를 덮어쓸 수 없게 방어할 수 있습니다.</Hint>
+  <Hint level={3} title="추적 힌트">무시 응답만 반환하지 말고 기존 Webhook event 기록의 outcome과 reason에 판단을 남기세요.</Hint>
+</ProgressiveHints>
+
+<LearningNote id="session-07-course-correction" prompt="Claude의 제안을 그대로 수용하지 않고 교정한 순간, 사용한 근거와 결과를 기록하세요." multiline />
+
+## 완료 조건
+
+- [ ] 허용 전이 표가 정책 테스트로 표현된다.
+- [ ] 늦은 거절이 승인 상태와 PAID 주문을 바꾸지 않는다.
+- [ ] 유효한 UNKNOWN → DECLINED는 여전히 처리된다.
+- [ ] 무시한 이벤트와 이유가 추적된다.
+- [ ] 범위를 벗어난 추상화가 diff에 남지 않는다.
+
+## 출처
+
+- [How Claude Code works: interrupt and steer](https://code.claude.com/docs/en/how-claude-code-works)
+- [Best Practices: course-correct early and often](https://code.claude.com/docs/en/best-practices)
+
+검토일: 2026-07-19

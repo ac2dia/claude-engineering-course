@@ -1,0 +1,98 @@
+---
+id: reproduce-payment-state-regression
+title: 늦은 이벤트의 상태 역행 재현하기
+type: exercise
+status: draft
+estimatedMinutes: 15
+repositoryVersion: v0.6.0
+startTag: lab-07-start
+referenceTag: lab-07-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 늦은 이벤트의 상태 역행 재현하기
+
+## Claude 학습 목표
+
+- Claude의 첫 해결안을 바로 채택하지 않고 문제의 불변 조건부터 확인합니다.
+- 결제 상태와 주문 상태가 서로 모순되는 실패를 재현합니다.
+- 의견이 다를 때 주장보다 코드·도메인 계약·실행 결과로 대화를 복구합니다.
+
+## 시작 업무 티켓
+
+```text
+PAYMENT_APPROVED 처리 뒤 네트워크 지연으로 이전 PAYMENT_DECLINED 이벤트가 도착했습니다.
+결제는 DECLINED로 바뀌었지만 주문은 PAID로 남았습니다.
+이벤트 순서가 바뀌어도 상태가 역행하지 않게 해 주세요.
+```
+
+## 실습 브랜치 준비
+
+Session 7은 `lab-07-start`에서 개인 브랜치를 만듭니다.
+
+### 저장소가 없는 경우
+
+```bash
+cd ..
+git clone https://github.com/ac2dia/globalpay-commerce-lab.git
+cd globalpay-commerce-lab
+git fetch --tags
+git switch -c session-07-work lab-07-start
+```
+
+### 기존 저장소를 사용하는 경우
+
+```bash
+cd ../globalpay-commerce-lab
+git status --short
+git fetch --tags
+git switch -c session-07-work lab-07-start
+```
+
+변경이 있다면 삭제하지 말고 commit 또는 stash 여부를 먼저 판단합니다. 브랜치가 이미 있으면 `git switch session-07-work`로 돌아갑니다.
+
+### 시작점 확인
+
+```bash
+git branch --show-current
+git merge-base --is-ancestor lab-07-start HEAD
+git status --short
+./gradlew test --tests '*PaymentWebhookCharacterizationTest'
+```
+
+테스트는 통과하지만 `lateDeclineCurrentlyRewindsAnApprovedPayment`는 잘못된 현재 동작을 기록한 특성 테스트입니다. payment `DECLINED`와 order `PAID`가 함께 존재하는 모순을 직접 확인하세요.
+
+```text
+lab-07-start
+  └─ session-07-work        ← 대안 비교·테스트·구현을 보존할 브랜치
+
+lab-07-reference            ← 판단과 구현을 마친 뒤 비교할 참고 태그
+```
+
+학습 중 참고 태그를 checkout하지 않습니다. 마지막에 diff로 비교합니다.
+
+## 불변 조건부터 요청하기
+
+```text
+lateDeclineCurrentlyRewindsAnApprovedPayment와 관련 코드를 조사하세요.
+아직 해결안을 선택하거나 코드를 수정하지 마세요.
+
+- 어떤 이벤트 순서가 현재 모순을 만드는지
+- payment와 order가 지켜야 할 불변 조건
+- 코드가 암묵적으로 가정한 이벤트 순서
+- 확인된 사실과 추가 확인이 필요한 도메인 정책
+
+을 파일 경로와 테스트 근거로 정리한 뒤 멈추세요.
+```
+
+<LearningNote id="session-07-invariants" prompt="현재 상태 모순, 지켜야 할 불변 조건과 코드에 숨어 있던 순서 가정을 기록하세요." multiline />
+
+## 출처
+
+- [How Claude Code works: gather context before action](https://code.claude.com/docs/en/how-claude-code-works#the-agentic-loop)
+- [Best Practices: explore first, then plan, then code](https://code.claude.com/docs/en/best-practices#explore-first-then-plan-then-code)
+
+검토일: 2026-07-19

@@ -1,0 +1,83 @@
+---
+id: review-payment-transition-decision
+title: 결정과 diff를 검토하고 일곱 번째 원칙 세우기
+type: checkpoint
+status: draft
+estimatedMinutes: 15
+prerequisites:
+  - steer-payment-transition-implementation
+repositoryVersion: v0.6.0
+startTag: lab-07-start
+referenceTag: lab-07-reference
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 결정과 diff를 검토하고 일곱 번째 원칙 세우기
+
+## 전체 검증
+
+```bash
+./gradlew test
+git status --short
+git diff --stat lab-07-start
+git diff lab-07-start
+```
+
+```text
+lab-07-start 이후 전체 diff를 결정 기록과 대조해 리뷰하세요.
+- 허용 전이 표의 각 셀에 대응하는 테스트
+- entity와 Webhook 정책 사이의 중복 또는 방어 누락
+- 종결 상태를 덮어쓸 수 있는 우회 경로
+- IGNORED 이유가 저장되지 않는 경로
+- 합의하지 않은 상태·이벤트·추상화
+
+코드를 수정하지 말고 파일 경로와 테스트 근거를 제시하세요.
+```
+
+## 참고 구현과 비교
+
+자신의 구현과 판단 기록을 마친 뒤 실행합니다.
+
+```bash
+git diff lab-07-reference -- src/main src/test
+git show --stat lab-07-reference
+```
+
+참고 구현은 작은 `PaymentTransitionPolicy`와 정책 단위 테스트를 선택했습니다. 자신의 구조가 더 단순하거나 더 확장 가능하다면 그 대신 어떤 보장과 비용을 갖는지 설명하세요.
+
+<LearningNote id="session-07-reference-review" prompt="참고 구현과 다른 선택, 자신의 선택을 유지하거나 바꿀 근거를 기록하세요." multiline />
+
+## 나의 일곱 번째 원칙
+
+```text
+Claude와 의견이 다를 때 나는 취향 대신 ____________________ 으로 방향을 교정한다.
+```
+
+<LearningNote id="session-07-personal-principle" prompt="나의 일곱 번째 Claude 개발 원칙을 적어보세요." />
+
+## 완료 체크
+
+- [ ] 여러 해결안과 전제를 같은 기준으로 비교했다.
+- [ ] timestamp와 상태 우선순위의 반례를 설명할 수 있다.
+- [ ] 허용 전이를 명시하고 늦은 이벤트의 상태 역행을 막았다.
+- [ ] 무시 이벤트와 이유를 추적한다.
+- [ ] Claude의 방향을 근거와 범위로 교정한 기록이 있다.
+
+<EndSession
+  sessionId="session-07"
+  label="Session 7 완료하기"
+  completedMessage="일곱 번째 학습을 마쳤습니다."
+  next="session-08"
+/>
+
+## 다음 세션
+
+Session 8에서는 지금까지의 조사·계획·구현·디버깅·검증·교정 방식을 하나의 반복 가능한 개인 Claude 개발 워크플로로 통합합니다.
+
+## 출처
+
+- [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices)
+
+검토일: 2026-07-19
