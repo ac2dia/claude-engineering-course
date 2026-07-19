@@ -1,0 +1,72 @@
+---
+id: test-competing-timeout-hypotheses
+title: 경쟁 가설을 코드와 로그로 검증하기
+type: exercise
+status: draft
+estimatedMinutes: 20
+prerequisites:
+  - reproduce-psp-response-loss
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/best-practices
+---
+
+# 경쟁 가설을 코드와 로그로 검증하기
+
+## 증상과 원인은 다릅니다
+
+`PSP timeout`은 관찰된 증상이지 하나의 원인이 아닙니다. 적어도 다음 가설은 서로 다른 처리 전략을 요구합니다.
+
+| 가설 | PSP 최종 상태 | 필요한 증거 | 무조건 재시도의 위험 |
+|---|---|---|---|
+| 요청 전 연결 실패 | 미처리 가능성 높음 | 송신 시점, provider log | 비교적 낮지만 단정 불가 |
+| 요청 전달 후 응답 유실 | 승인 또는 거절 | PSP 조회, payment ID | 중복 승인 |
+| 응답 수신 후 DB commit 실패 | 승인 | transaction log, PSP 조회 | 중복 승인 |
+| 늦은 응답 또는 파싱 실패 | 알 수 없음 | raw response, latency | 잘못된 상태 확정 |
+
+## 첫 설명에 고정되지 않게 요청하기
+
+```text
+첫 번째 원인 설명을 결론으로 확정하지 마세요.
+현재 코드에서 가능한 원인 가설을 최소 3개 만들고 다음 열로 표를 작성하세요.
+
+- 가설
+- 맞다면 관찰되어야 할 결과
+- 틀렸음을 보여 줄 결과
+- 지금 확보한 코드 또는 테스트 근거
+- 추가로 실행할 최소 검증
+
+확인된 사실과 추론을 명시적으로 구분하고, 코드는 수정하지 마세요.
+```
+
+Claude가 확신하는 문장을 사용해도 파일을 실제로 열고 다음을 확인하세요.
+
+- 외부 호출이 database transaction 안에 포함되는가?
+- PSP 승인 기록은 exception보다 앞에서 생성되는가?
+- exception 뒤 로컬 payment가 commit되는가, rollback되는가?
+- 재시도가 기존 payment를 찾을 수 있는가?
+- 같은 idempotency key가 PSP에도 전달되는가?
+
+<LearningNote id="session-05-hypothesis-table" prompt="가설별 지지·반증 증거와 현재 가장 가능성 높은 설명을 기록하세요." multiline />
+
+## 위험한 첫 수정안 거절하기
+
+다음 제안은 timeout을 없애지 않고 중복 위험을 키울 수 있습니다.
+
+```text
+timeout을 catch하고 PSP charge를 최대 3번 retry하겠습니다.
+```
+
+교정 예시:
+
+```text
+구현하지 마세요. 응답 유실 테스트에서는 첫 호출이 이미 승인된 상태입니다.
+제안한 retry가 PSP 승인 횟수와 로컬 상태에 미치는 영향을 먼저 설명하고,
+외부 결과를 알 수 없다는 사실을 보존하는 대안을 2개 비교하세요.
+```
+
+<ProgressiveHints id="session-05-hypotheses">
+  <Hint level={1} title="순서 힌트">`MockPspClient.charge`에서 승인 기록과 timeout exception 중 무엇이 먼저인지 확인하세요.</Hint>
+  <Hint level={2} title="트랜잭션 힌트">`PaymentProcessor.process`의 transaction이 exception을 만났을 때 `saveAndFlush` 결과까지 유지되는지 확인하세요.</Hint>
+  <Hint level={3} title="상태 힌트">성공이나 실패로 단정할 증거가 없다면 그 불확실성 자체를 도메인 상태로 보존할 수 있습니다.</Hint>
+</ProgressiveHints>

@@ -127,3 +127,27 @@ test("links ready Session 4 from the course home", async () => {
   assert.match(html, /href="\/learn\/session-04"/);
   assert.match(html, /작게 구현하고 검증하기/);
 });
+
+test("renders Session 5 from MDX content", async () => {
+  const response = await render("/learn/session-05");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /수정 전에 PSP 응답 유실 재현하기/);
+  assert.match(html, /경쟁 가설을 코드와 로그로 검증하기/);
+  assert.match(html, /불확실성을 보존하고 후속 확인하기/);
+  assert.match(html, /디버깅 증거 검토와 다섯 번째 원칙/);
+  assert.match(html, /Session 5 목차/);
+  assert.match(html, /Session 5 완료하기/);
+  assert.match(html, /git switch -c session-05-work lab-05-start/);
+  assert.match(html, /lab-05-reference/);
+  assert.match(html, /PspTimeoutCharacterizationTest/);
+});
+
+test("links ready Session 5 from the course home", async () => {
+  const response = await render();
+  const html = await response.text();
+
+  assert.match(html, /href="\/learn\/session-05"/);
+  assert.match(html, /Claude의 가정을 검증하며 디버깅하기/);
+});

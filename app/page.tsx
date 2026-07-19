@@ -39,6 +39,8 @@ const sessions = [
     title: "Claude의 가정을 검증하며 디버깅하기",
     focus: "PSP 타임아웃",
     duration: "90분",
+    ready: true,
+    href: "/learn/session-05",
   },
   {
     number: "06",
