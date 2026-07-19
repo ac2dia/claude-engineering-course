@@ -115,7 +115,21 @@ sources:
 
 </details>
 
-### 8. Claude가 수정한 파일을 checkpoint로 되돌릴 수 있다면 함께 보장되는 것은?
+### 8. 사내 gateway가 `Authorization: Bearer`로 static private token을 받는다면 올바른 연결은?
+
+- A. CLI는 `ANTHROPIC_API_KEY`, Desktop은 `x-api-key`를 사용한다.
+- B. CLI는 `ANTHROPIC_AUTH_TOKEN`, Desktop은 API key와 `Bearer` auth scheme을 사용한다.
+- C. token을 `CLAUDE.md`에 기록하면 CLI와 Desktop이 함께 읽는다.
+- D. CLI 설정을 마치면 Desktop에도 자동으로 복사된다.
+
+<details>
+<summary>답과 해설</summary>
+
+정답은 B입니다. CLI와 Desktop의 설정 위치는 서로 다릅니다. static token을 사용하더라도 저장·회전 정책을 확인하고, 조직 환경에서는 credential helper나 OIDC 같은 중앙 관리 방식을 우선 검토합니다.
+
+</details>
+
+### 9. Claude가 수정한 파일을 checkpoint로 되돌릴 수 있다면 함께 보장되는 것은?
 
 - A. 이미 호출한 운영 API도 취소된다.
 - B. push와 배포도 자동으로 되돌아간다.
@@ -165,6 +179,7 @@ sources:
 - [ ] resume, fork, compact, clear를 사용할 상황을 구분할 수 있다.
 - [ ] checkpoint와 Git, 외부 부작용 복구의 차이를 설명할 수 있다.
 - [ ] private gateway 연결의 전제와 Desktop의 별도 설정을 설명할 수 있다.
+- [ ] Bearer와 `x-api-key` 인증을 CLI와 Desktop 설정에 각각 대응할 수 있다.
 - [ ] 개인 개발 원칙과 회고를 기록했다.
 
 <EndSession sessionId="session-01" label="오늘은 여기까지" next="session-02" />

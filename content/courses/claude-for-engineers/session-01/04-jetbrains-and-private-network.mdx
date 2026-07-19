@@ -12,6 +12,7 @@ sources:
   - https://code.claude.com/docs/en/desktop
   - https://code.claude.com/docs/en/llm-gateway
   - https://code.claude.com/docs/en/llm-gateway-connect
+  - https://claude.com/docs/third-party/claude-desktop/gateway
 ---
 
 # JetBrains와 private network에서 사용하기
@@ -26,6 +27,21 @@ IntelliJ IDEA용 플러그인만 설치하면 끝나는 구조가 아닙니다. 
 4. 외부 터미널을 쓰고 있었다면 `/ide`로 IDE와 연결합니다.
 5. `/config`에서 diff 도구가 자동으로 설정되었는지 확인합니다.
 
+이 과정의 권장 조합은 다음과 같습니다.
+
+```text
+Claude Code CLI
+  ├─ agentic loop, 파일·명령 도구, 세션과 권한 모드
+  └─ 실제 작업 실행
+
+JetBrains plugin
+  ├─ 현재 파일·선택 영역과 diagnostics 전달
+  ├─ IDE diff viewer
+  └─ CLI를 IDE terminal에서 빠르게 실행
+```
+
+즉 JetBrains가 별도의 agent를 제공하는 것이 아니라, CLI가 IDE의 편집·진단 경험과 연결되는 구조입니다.
+
 | 기능 | macOS | Windows/Linux |
 |---|---|---|
 | Claude Code 열기 | `Cmd+Esc` | `Ctrl+Esc` |
@@ -33,46 +49,145 @@ IntelliJ IDEA용 플러그인만 설치하면 끝나는 구조가 아닙니다. 
 
 JetBrains가 `Esc`를 자체 단축키로 가로채면 터미널 설정에서 Escape가 IDE 단축키를 실행하는 옵션을 조정해야 할 수 있습니다. 키맵은 버전과 사용자 설정에 따라 다르므로 [공식 JetBrains 안내](https://code.claude.com/docs/en/jetbrains)를 함께 확인하세요.
 
+## 실습 저장소에서 연결을 확인합니다
+
+`globalpay-commerce-lab`을 JetBrains로 연 뒤 integrated terminal에서 실행하세요.
+
+```bash
+claude --version
+pwd
+git status --short --branch
+claude --permission-mode plan
+```
+
+Claude Code 안에서는 다음 순서로 확인합니다.
+
+```text
+/ide
+/config
+!git status --short --branch
+```
+
+- `/ide`가 현재 JetBrains instance를 표시합니다.
+- `/config`의 Diff tool을 `auto`로 두면 IDE diff viewer를 사용할 수 있습니다.
+- 외부 terminal을 쓰면 IDE와 같은 project root에서 시작한 뒤 `/ide`로 연결합니다.
+- plugin icon에서 `command not found`가 나오면 JetBrains 설정의 Claude command에 실제 CLI 절대 경로를 지정합니다.
+
 ## IDE 컨텍스트의 편리함과 위험
 
-열린 파일과 선택 영역을 쉽게 전달할 수 있지만, 민감한 설정·토큰·고객 데이터가 포함된 파일을 선택하지 않습니다. `acceptEdits` 모드에서는 IDE 설정 파일도 편집 대상이 될 수 있으므로 처음에는 Manual 또는 Plan mode를 권장합니다. 민감 경로는 조직 정책과 `permissions.deny` 규칙으로 차단하는 방법도 검토하세요.
+plugin이 연결된 동안 현재 active file 경로와 선택 영역은 prompt를 보낼 때 context로 포함될 수 있고, IDE diagnostics도 Claude에 전달됩니다. transcript의 `Selected N lines from ...` 표시로 실제 전달 범위를 확인하세요.
+
+민감한 설정·토큰·고객 데이터가 포함된 파일을 열거나 선택하지 않습니다. `acceptEdits` 모드에서는 IDE 설정 파일도 편집 대상이 될 수 있으므로 처음에는 Manual 또는 Plan mode를 권장합니다. 민감 경로는 조직 정책과 `permissions.deny` 규칙으로 차단합니다. deny가 일치하면 선택 text와 active-file 알림도 전달되지 않습니다.
+
+WSL2나 remote IDE 때문에 **Accept connections from all network interfaces**를 켜면 IDE 연결 port와 token이 local network를 지나며 transport가 암호화되지 않습니다. loopback 연결 또는 WSL mirrored networking을 우선하고, 이 옵션은 보안팀 검토 없이 켜지 않습니다.
+
+## 우리 과정의 권장 일상 workflow
+
+| 단계 | 인터페이스 | 권장 모드 |
+|---|---|---|
+| 티켓과 코드 흐름 조사 | JetBrains terminal의 CLI | Plan |
+| 계획과 영향 범위 검토 | CLI 대화 + IDE 파일 탐색 | Plan |
+| 작은 테스트·구현 | CLI + IDE diff | Manual, 익숙해진 뒤 Accept edits |
+| focused/full test | CLI | 명령과 결과 직접 확인 |
+| 전체 변경 리뷰 | JetBrains diff + `git diff` | 구현 중단 후 독립 리뷰 |
+
+Desktop은 여러 local session과 visual diff가 필요할 때 선택적으로 사용합니다. 이 과정의 필수 도구는 CLI + JetBrains입니다.
 
 ## private network 연결: 먼저 용어를 바로잡습니다
 
 “private token으로 Desktop을 연결한다”는 말은 다음 조건을 만족하는 **사내 LLM gateway의 인증 토큰**을 뜻해야 합니다.
 
 - gateway가 Anthropic API 형식과 필요한 Claude 모델을 지원합니다.
+- 최소한 Anthropic Messages API의 `POST /v1/messages`, streaming과 tool use를 구현합니다.
 - 개발자 PC에서 gateway URL에 네트워크로 도달할 수 있습니다.
 - gateway가 지원되는 upstream/provider로 요청을 전달할 수 있습니다.
 - 회사 보안 정책이 토큰의 로컬 저장과 사용을 허용합니다.
 
-완전히 air-gapped된 망에서 아무 upstream도 없이 임의의 로컬 모델에 연결하는 기능을 뜻하지 않습니다.
+`GET /v1/models`는 선택 사항이지만 없으면 Desktop model 목록을 관리 설정으로 제공해야 할 수 있습니다. Anthropic은 gateway를 통한 non-Claude model routing을 지원하지 않습니다. 완전히 air-gapped된 망에서 아무 upstream도 없이 임의의 로컬 모델에 연결하는 기능을 뜻하지 않습니다.
 
 ## CLI에서 gateway 연결
 
-gateway가 Bearer 인증을 요구하는 예시입니다. 실제 값과 배포 방식은 사내 플랫폼 팀의 안내를 따르세요.
+처음에는 설정 파일에 저장하기 전에 같은 terminal session에서만 환경 변수를 지정하고 연결을 검증합니다. gateway가 Bearer 인증을 요구하는 예시입니다.
+
+```bash
+export ANTHROPIC_BASE_URL=https://llm-gateway.company.internal
+export ANTHROPIC_AUTH_TOKEN=REPLACE_WITH_GATEWAY_TOKEN
+claude
+```
+
+PowerShell에서는 다음과 같습니다.
+
+```powershell
+$env:ANTHROPIC_BASE_URL = "https://llm-gateway.company.internal"
+$env:ANTHROPIC_AUTH_TOKEN = "REPLACE_WITH_GATEWAY_TOKEN"
+claude
+```
+
+JetBrains의 integrated terminal도 **변수를 설정한 같은 terminal에서** `claude`를 실행해야 합니다. Dock이나 Start menu에서 실행한 다른 process가 shell export를 자동 상속한다고 가정하지 않습니다.
+
+지속 설정이 필요하다면 실제 값과 배포 방식은 사내 플랫폼 팀의 안내를 따르세요.
 
 ```json
 {
   "env": {
     "ANTHROPIC_BASE_URL": "https://llm-gateway.company.internal",
-    "ANTHROPIC_AUTH_TOKEN": "${PRIVATE_GATEWAY_TOKEN}"
+    "ANTHROPIC_AUTH_TOKEN": "REPLACE_WITH_GATEWAY_TOKEN"
   }
 }
 ```
 
-`x-api-key` 방식이면 `ANTHROPIC_API_KEY`를 사용합니다. 비밀값은 커밋되는 프로젝트 `.claude/settings.json`에 넣지 말고 사용자 범위 `~/.claude/settings.json`, 운영체제 보안 저장소, 또는 gitignored `.claude/settings.local.json` 등 회사가 승인한 방식으로 관리합니다. 연결 후 Claude Code에서 `/status`로 확인합니다.
+위 문자열은 환경 변수 치환 문법이 아니라 **실제 credential로 교체할 자리 표시자**입니다. `x-api-key` 방식이면 `ANTHROPIC_API_KEY`를 사용합니다. 회전 token이나 vault가 있다면 평문 저장 대신 `apiKeyHelper` 사용을 플랫폼 팀과 검토합니다.
+
+비밀값은 커밋되는 프로젝트 `.claude/settings.json`에 넣지 말고 사용자 범위 `~/.claude/settings.json`, 회사 secrets tooling 또는 gitignored `.claude/settings.local.json` 등 승인된 방식으로 관리합니다. 로컬 파일을 직접 만들었다면 gitignore 여부를 먼저 확인합니다.
+
+연결 후 `/status`에서 다음 두 항목을 모두 확인합니다.
+
+- `Anthropic base URL`: 사내 gateway 주소
+- `Auth token` 또는 `API key`: 설정한 credential source
+
+base URL만 있고 credential이 없으면 저장된 개인 claude.ai login이 사용될 수 있으므로 “private token 연결 완료”로 판단하지 않습니다.
 
 ## Desktop은 CLI 환경 변수를 그대로 읽지 않습니다
 
-Desktop에서 gateway routing을 사용하려면 다음 흐름을 따릅니다.
+Desktop의 Code tab은 CLI의 `ANTHROPIC_BASE_URL`이나 `settings.json`을 gateway routing 설정으로 읽지 않습니다. **Desktop 전용 Third-Party Inference 설정**이 필요합니다.
+
+private token이 장기 static gateway key라면 다음 흐름을 따릅니다.
 
 1. **Help → Troubleshooting → Enable Developer Mode**
 2. **Developer → Configure Third-Party Inference**
-3. 사내 gateway URL과 관리자가 제공한 인증 정보를 입력
-4. 테스트 요청과 gateway 감사 로그로 경로 확인
+3. Inference provider를 **Gateway**로 선택
+4. Gateway base URL에 사내 주소 입력
+5. Gateway API key에 관리자가 발급한 private token 입력
+6. Credential kind는 **Static API key** 선택
+7. Gateway auth scheme은 gateway 계약에 따라 **Bearer** 또는 **x-api-key** 선택
+8. 테스트 요청과 gateway 감사 로그로 경로 확인
 
-관리자가 배포한 설정이 있으면 개인 설정을 덮어쓸 수 있습니다. gateway 연결 상태의 Desktop은 공식 문서 기준으로 로컬 세션만 지원하며 SSH, cloud sessions, Remote Control은 지원하지 않습니다. 또한 CLI의 `ANTHROPIC_BASE_URL`이나 `settings.json` gateway 설정이 Desktop에 자동 적용된다고 가정하면 안 됩니다.
+Desktop의 static key 설정은 CLI의 변수 이름과 다음처럼 대응합니다.
+
+| gateway 계약 | CLI | Desktop |
+|---|---|---|
+| `Authorization: Bearer` | `ANTHROPIC_AUTH_TOKEN` | API key + auth scheme `Bearer` |
+| `x-api-key` | `ANTHROPIC_API_KEY` | API key + auth scheme `x-api-key` |
+
+조직에서는 static token을 개인이 반복 입력하기보다 다음 중 하나를 권장합니다.
+
+- MDM으로 `inferenceGatewayBaseUrl`, `inferenceGatewayApiKey`, `inferenceGatewayAuthScheme` 배포
+- executable credential helper로 runtime credential 발급
+- Entra ID·Okta 등 OIDC interactive sign-in으로 per-user token 사용
+
+OIDC 방식은 단순 API key 입력과 다른 enterprise 구축 작업입니다. IdP application, redirect URI, issuer/client ID, gateway의 signature·issuer·audience 검증이 필요하므로 플랫폼·보안팀이 설계해야 합니다.
+
+관리자가 배포한 설정이 있으면 개인 설정을 덮어쓰고 form이 read-only가 될 수 있습니다. gateway 연결 상태의 Desktop은 공식 문서 기준으로 local session만 지원하며 SSH, Anthropic-hosted cloud session, Remote Control은 지원하지 않습니다. Slack과 Web 같은 Anthropic-hosted surface도 사내 gateway 경로를 사용하지 않습니다.
+
+## private network 선택 가이드
+
+| 상황 | 권장 선택 |
+|---|---|
+| 일반적인 로컬 개발과 JetBrains 중심 업무 | CLI + JetBrains + managed gateway settings |
+| 여러 local session과 visual diff가 필요 | Desktop Code tab + Third-Party Inference |
+| remote host에서 gateway 경유 개발 | remote host에 CLI 변수·credential 설정 |
+| 완전 air-gap, upstream 없음 | 지원 경로가 아니므로 별도 제품·정책 검토 |
+| non-Claude model만 제공하는 gateway | Claude Code 지원 대상으로 간주하지 않음 |
 
 ## 도입 전 체크리스트
 
@@ -82,6 +197,8 @@ Desktop에서 gateway routing을 사용하려면 다음 흐름을 따릅니다.
 - [ ] source code와 prompt의 저장·감사·retention 정책을 확인했다.
 - [ ] Desktop이 필요한지, CLI + JetBrains만으로 충분한지 결정했다.
 - [ ] `/status`와 gateway 로그로 실제 연결 경로를 검증했다.
+- [ ] Desktop이 CLI 환경 변수를 자동 사용하지 않는다는 점을 확인했다.
+- [ ] static key, credential helper, OIDC 중 조직의 credential 전략을 정했다.
 
 <LearningNote id="session-01-private-network-decision" prompt="우리 환경에서 확인해야 할 gateway, 인증, 데이터 정책 질문을 적어보세요." multiline />
 
@@ -91,3 +208,4 @@ Desktop에서 gateway routing을 사용하려면 다음 흐름을 따릅니다.
 - [Claude Code on Desktop](https://code.claude.com/docs/en/desktop)
 - [LLM gateway configuration](https://code.claude.com/docs/en/llm-gateway)
 - [Connect Claude Code to an LLM gateway](https://code.claude.com/docs/en/llm-gateway-connect)
+- [Deploy Claude Desktop with an LLM gateway](https://claude.com/docs/third-party/claude-desktop/gateway)

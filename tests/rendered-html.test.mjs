@@ -50,6 +50,11 @@ test("renders Session 1 from MDX content", async () => {
   assert.match(html, /checkpoint와 Git은 서로 다른 안전망/);
   assert.match(html, /Configure Third-Party Inference/);
   assert.match(html, /ANTHROPIC_BASE_URL/);
+  assert.match(html, /ANTHROPIC_AUTH_TOKEN/);
+  assert.match(html, /Gateway API key/);
+  assert.match(html, /Static API key/);
+  assert.match(html, /apiKeyHelper/);
+  assert.doesNotMatch(html, /\$\{PRIVATE_GATEWAY_TOKEN\}/);
   assert.match(html, /모호한 결제 장애 요청 개선하기/);
   assert.match(html, /개념 확인과 첫 번째 원칙/);
   assert.match(html, /MY FIELD NOTE/);
