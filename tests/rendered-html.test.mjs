@@ -46,6 +46,8 @@ test("renders Session 1 from MDX content", async () => {
   assert.match(html, /CLI 명령어와 권한 모드 익히기/);
   assert.match(html, /JetBrains와 private network에서 사용하기/);
   assert.match(html, /메모리와 CLAUDE\.md 설계하기/);
+  assert.match(html, /세션, 컨텍스트와 checkpoint 관리하기/);
+  assert.match(html, /checkpoint와 Git은 서로 다른 안전망/);
   assert.match(html, /Configure Third-Party Inference/);
   assert.match(html, /ANTHROPIC_BASE_URL/);
   assert.match(html, /모호한 결제 장애 요청 개선하기/);

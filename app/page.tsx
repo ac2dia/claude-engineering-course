@@ -6,7 +6,7 @@ const sessions = [
     number: "01",
     title: "Claude를 올바르게 이해하기",
     focus: "모델 · 도구 · 컨텍스트",
-    duration: "4시간 20분",
+    duration: "5시간",
     ready: true,
     href: "/learn/session-01",
   },
@@ -112,7 +112,7 @@ export default function Home() {
           </div>
           <dl className="hero-facts">
             <div><dt>과정</dt><dd>8 Sessions</dd></div>
-            <div><dt>분량</dt><dd>12–14 Hours</dd></div>
+            <div><dt>분량</dt><dd>13–15 Hours</dd></div>
             <div><dt>방식</dt><dd>Local Practice</dd></div>
           </dl>
         </div>

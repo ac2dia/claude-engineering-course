@@ -1,0 +1,107 @@
+---
+id: sessions-context-and-checkpoints
+title: 세션, 컨텍스트와 checkpoint 관리하기
+type: lesson
+status: draft
+estimatedMinutes: 40
+prerequisites:
+  - memory-and-claude-md
+lastReviewed: 2026-07-19
+sources:
+  - https://code.claude.com/docs/en/how-claude-code-works
+  - https://code.claude.com/docs/en/interactive-mode
+  - https://code.claude.com/docs/en/checkpointing
+---
+
+# 세션, 컨텍스트와 checkpoint 관리하기
+
+## 학습 목표
+
+- 세션 기록과 현재 컨텍스트를 구분합니다.
+- continue, resume, fork와 새 세션의 차이를 설명합니다.
+- compact와 clear를 사용할 시점을 판단합니다.
+- checkpoint가 Git과 외부 부작용을 대신하지 못하는 이유를 이해합니다.
+
+## 세션은 대화 기록이고, 컨텍스트는 지금 모델이 보는 입력입니다
+
+Claude Code는 메시지와 도구 결과를 로컬 세션 기록에 저장합니다. 하지만 모든 기록이 언제나 모델의 현재 입력에 그대로 들어가는 것은 아닙니다.
+
+```text
+저장된 세션 기록
+  ├─ 대화와 도구 사용 이력
+  ├─ 재개·fork에 필요한 정보
+  └─ checkpoint 정보
+
+현재 컨텍스트
+  ├─ 현재 대화에서 유지된 내용
+  ├─ 읽은 파일과 최근 도구 출력
+  ├─ CLAUDE.md와 auto memory
+  └─ system instruction과 로드된 확장 정보
+```
+
+새 세션은 fresh context로 시작합니다. 이전 대화 전체를 자동으로 아는 것은 아니며, `CLAUDE.md`와 auto memory처럼 명시적으로 지속되는 정보만 별도로 들어옵니다.
+
+## continue, resume, fork, clear 비교
+
+| 동작 | 결과 | 사용 예 |
+|---|---|---|
+| `claude -c` / `--continue` | 가장 최근 세션을 같은 ID로 계속 | 방금 중단한 작업 이어가기 |
+| `claude -r` / `--resume` | 이전 세션을 선택해 같은 ID로 계속 | 어제의 결제 조사 재개 |
+| `--fork-session` 또는 `/branch` | 이력을 복사하되 새 세션 ID 생성 | 같은 조사에서 두 해결안 비교 |
+| `/clear` | 현재 입력 이력을 비우고 새 세션 시작 | 전혀 다른 업무로 전환 |
+
+브랜치를 바꿔도 대화 기록은 그대로일 수 있습니다. Claude가 보고 있는 실제 파일은 현재 작업 디렉터리와 Git branch의 파일이므로, 전환 직후 다음을 다시 확인하게 하세요.
+
+```text
+현재 branch와 변경 상태를 확인하고,
+이전 대화에서 언급한 파일이 지금 branch에도 같은지 다시 조사하세요.
+```
+
+## 컨텍스트가 길어질 때
+
+`/context`는 무엇이 컨텍스트 공간을 사용 중인지 보여 줍니다. 길어진 작업에서는 오래된 도구 출력이 먼저 제거되고 필요하면 대화가 요약됩니다. 초반의 세부 지시가 약해질 수 있습니다.
+
+- 같은 작업이고 핵심만 보존하면 될 때: `/compact 결제 상태 전이 결정과 미해결 위험에 집중`
+- 업무가 완전히 달라질 때: `/clear`
+- 반복적으로 필요한 규칙: 대화가 아니라 `CLAUDE.md`
+- 원본 로그·큰 파일: 필요한 부분만 검색·추출한 뒤 읽기
+
+compact는 압축이지 진실 보존 장치가 아닙니다. 중요한 결정은 코드, 테스트, ADR, 티켓처럼 팀이 검토할 수 있는 artifact에도 남깁니다.
+
+## checkpoint와 Git은 서로 다른 안전망입니다
+
+Claude Code는 파일 편집 전에 영향을 받는 파일을 snapshot하여 rewind할 수 있습니다. 입력이 비었을 때 `Esc`를 두 번 눌러 rewind 메뉴를 열 수 있습니다.
+
+| 안전망 | 되돌릴 수 있는 것 | 되돌리지 못하는 것 |
+|---|---|---|
+| Claude checkpoint | Claude가 편집한 로컬 파일과 대화 지점 | DB 변경, API 호출, 배포, push 같은 외부 부작용 |
+| Git commit/branch | 명시적으로 저장한 저장소 변경 | 커밋 밖 파일, 외부 시스템 상태 |
+| 테스트·CI | 요구사항 위반을 발견 | 변경 자체의 자동 복구 |
+
+따라서 “checkpoint가 있으니 안전하다”는 이유로 운영 명령을 승인하면 안 됩니다. 외부 부작용은 실행 전 대상·환경·복구 절차를 확인합니다.
+
+## 10분 판단 실습
+
+다음 상황마다 `continue`, `resume`, `fork`, `compact`, `clear`, checkpoint, Git 중 무엇을 사용할지 정하세요.
+
+1. 어제 조사한 PSP timeout 대화를 다시 이어 간다.
+2. 동일한 조사 결과로 retry안과 reconciliation안을 독립 비교한다.
+3. 2시간 동안 작업해 도구 출력이 많지만 같은 기능을 계속 구현한다.
+4. 결제 구현을 마치고 전혀 다른 주문 UI 업무를 시작한다.
+5. Claude가 방금 로컬 파일 세 개를 잘못 편집했다.
+6. 잘못된 명령이 staging database의 행을 변경했다.
+
+<LearningNote id="session-01-session-context-decisions" prompt="각 상황에서 선택한 기능과 그 이유를 적어보세요." multiline />
+
+<details>
+<summary>참고 판단 보기</summary>
+
+1은 resume, 2는 fork, 3은 compact, 4는 clear가 적합합니다. 5는 checkpoint 또는 Git diff를 검토해 복구할 수 있습니다. 6은 checkpoint로 복구되지 않으므로 database의 별도 복구 절차가 필요합니다.
+
+</details>
+
+## 출처
+
+- [How Claude Code works: sessions, context and checkpoints](https://code.claude.com/docs/en/how-claude-code-works#work-with-sessions)
+- [Interactive mode](https://code.claude.com/docs/en/interactive-mode)
+- [Checkpointing](https://code.claude.com/docs/en/checkpointing)

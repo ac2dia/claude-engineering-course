@@ -115,6 +115,20 @@ sources:
 
 </details>
 
+### 8. Claude가 수정한 파일을 checkpoint로 되돌릴 수 있다면 함께 보장되는 것은?
+
+- A. 이미 호출한 운영 API도 취소된다.
+- B. push와 배포도 자동으로 되돌아간다.
+- C. 로컬 파일 변경을 rewind할 수 있지만 외부 부작용에는 별도 복구가 필요하다.
+- D. Git branch가 자동으로 생성된다.
+
+<details>
+<summary>답과 해설</summary>
+
+정답은 C입니다. checkpoint는 로컬 파일 편집의 안전망이며 Git, database rollback, API 보상 작업을 대신하지 않습니다.
+
+</details>
+
 ## 나의 첫 번째 Claude 개발 원칙
 
 아래 문장을 자신의 표현으로 완성하세요.
@@ -148,6 +162,8 @@ sources:
 - [ ] Manual, Accept edits, Plan mode의 차이를 설명할 수 있다.
 - [ ] JetBrains에서 CLI와 플러그인이 모두 필요한 이유를 안다.
 - [ ] 컨텍스트, 세션, `CLAUDE.md`, auto memory를 구분할 수 있다.
+- [ ] resume, fork, compact, clear를 사용할 상황을 구분할 수 있다.
+- [ ] checkpoint와 Git, 외부 부작용 복구의 차이를 설명할 수 있다.
 - [ ] private gateway 연결의 전제와 Desktop의 별도 설정을 설명할 수 있다.
 - [ ] 개인 개발 원칙과 회고를 기록했다.
 
