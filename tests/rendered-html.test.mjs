@@ -91,6 +91,9 @@ test("renders Session 3 from MDX content", async () => {
   assert.match(html, /개념 확인과 세 번째 원칙/);
   assert.match(html, /Session 3 목차/);
   assert.match(html, /Session 3 완료하기/);
+  assert.match(html, /git switch --detach lab-03-start/);
+  assert.match(html, /docs\/tickets\/payment-idempotency\.md/);
+  assert.match(html, /github\.com\/ac2dia\/globalpay-commerce-lab/);
 });
 
 test("links ready Session 3 from the course home", async () => {
@@ -112,6 +115,9 @@ test("renders Session 4 from MDX content", async () => {
   assert.match(html, /전체 diff 검증과 네 번째 원칙/);
   assert.match(html, /Session 4 목차/);
   assert.match(html, /Session 4 완료하기/);
+  assert.match(html, /git switch -c session-04-work lab-04-start/);
+  assert.match(html, /lab-04-reference/);
+  assert.match(html, /github\.com\/ac2dia\/globalpay-commerce-lab/);
 });
 
 test("links ready Session 4 from the course home", async () => {

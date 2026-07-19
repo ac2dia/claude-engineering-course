@@ -25,15 +25,17 @@ sources:
 
 ## 실습 시작
 
+첫 페이지에서 `lab-03-start`로 이동하고 테스트까지 완료했다면, 저장소 상태를 한 번 더 확인한 뒤 Claude Code를 시작합니다.
+
 ```bash
-cd ../globalpay-commerce-lab
-git fetch --tags
-git checkout lab-03-start
-./gradlew test
+git describe --tags --exact-match
+git status --short
 claude --permission-mode plan
 ```
 
-이번 세션도 코드를 변경하지 않습니다. Plan mode에서는 Claude가 읽기 전용 도구로 저장소를 조사하고 계획을 제안할 수 있습니다. 계획을 승인하면 편집 모드로 전환될 수 있으므로, 이번 세션에서는 계획을 검토한 뒤 승인하지 않고 종료합니다.
+태그 확인 결과가 `lab-03-start`가 아니거나 `git status --short`에 파일이 표시되면 실습을 시작하지 말고 첫 페이지의 저장소 준비 절차를 다시 확인하세요.
+
+이번 세션은 코드를 변경하지 않습니다. Plan mode에서는 Claude가 읽기 전용 도구로 저장소를 조사하고 계획을 제안할 수 있습니다. 계획을 승인하면 편집 모드로 전환될 수 있으므로, 이번 세션에서는 계획을 검토한 뒤 승인하지 않고 종료합니다.
 
 ## Domain Brief
 
