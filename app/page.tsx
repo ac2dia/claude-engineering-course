@@ -198,7 +198,15 @@ export default function Home() {
               <span className="session-number">{session.number}</span>
               <div>
                 <p>{session.focus}</p>
-                <h3>{session.title}</h3>
+                <h3>
+                  {session.ready ? (
+                    <Link className="session-title-link" href={session.href}>
+                      {session.title}
+                    </Link>
+                  ) : (
+                    session.title
+                  )}
+                </h3>
               </div>
               <span className="session-duration">{session.duration}</span>
               {session.ready ? (

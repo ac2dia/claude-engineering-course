@@ -518,6 +518,18 @@ a {
   letter-spacing: -0.025em;
 }
 
+.session-title-link {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+
+.session-title-link:hover,
+.session-title-link:focus-visible {
+  color: var(--coral-dark);
+  text-decoration-line: underline;
+}
+
 .session-row > a {
   display: flex;
   justify-content: space-between;

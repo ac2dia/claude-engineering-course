@@ -36,6 +36,14 @@ test("renders the course home", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
 
+test("links each ready session title to its curriculum", async () => {
+  const response = await render();
+  const html = await response.text();
+
+  assert.match(html, /<a href="\/learn\/session-01" class="session-title-link">Claude를 올바르게 이해하기<\/a>/);
+  assert.match(html, /<a href="\/learn\/session-08" class="session-title-link">나만의 Claude 개발 워크플로 만들기<\/a>/);
+});
+
 test("renders Session 1 from MDX content", async () => {
   const response = await render("/learn/session-01");
   assert.equal(response.status, 200);
